@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useListAdminUsers, useCreateAdminUser, useUpdateAdminUser, useDeleteAdminUser, getListAdminUsersQueryKey } from '@workspace/api-client-react';
 import { Card, CardContent, Table, TableHeader, TableRow, TableHead, TableBody, TableCell, Badge, Button, Input, Label } from '@/components/ui/shared';
 import { useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2, X } from 'lucide-react';
+import { Plus, CreditCard as Edit, Trash2, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Modal = ({ isOpen, onClose, title, children }: any) => {

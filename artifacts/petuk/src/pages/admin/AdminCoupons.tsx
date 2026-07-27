@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useListCoupons, useCreateCoupon, useUpdateCoupon, useDeleteCoupon, getListCouponsQueryKey } from '@workspace/api-client-react';
 import { Card, CardContent, Table, TableHeader, TableRow, TableHead, TableBody, TableCell, Badge, Button, Input, Label } from '@/components/ui/shared';
 import { useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, X, Edit } from 'lucide-react';
+import { Plus, Trash2, X, CreditCard as Edit } from 'lucide-react';
 import { format } from 'date-fns';
 import type { CouponInputType } from '@workspace/api-client-react';
 

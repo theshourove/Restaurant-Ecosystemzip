@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTrackOrder, getTrackOrderQueryKey } from '@workspace/api-client-react';
-import { MapPin, Search, CheckCircle2, ChefHat, Package, Bike, XCircle, Clock, Loader2 } from 'lucide-react';
+import { MapPin, Search, CircleCheck as CheckCircle2, ChefHat, Package, Bike, Circle as XCircle, Clock, Loader as Loader2 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { format } from 'date-fns';
 

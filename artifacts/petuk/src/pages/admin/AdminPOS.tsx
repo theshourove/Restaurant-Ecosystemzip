@@ -8,11 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
-import {
-  Flame, Plus, Minus, Trash2, Search, User, Printer,
-  X, Check, Utensils, ShoppingBag, Bike, Ticket, Tag,
-  ChevronLeft, DollarSign, Loader2, RefreshCw, Home
-} from 'lucide-react';
+import { Flame, Plus, Minus, Trash2, Search, User, Printer, X, Check, Utensils, ShoppingBag, Bike, Ticket, Tag, ChevronLeft, DollarSign, Loader as Loader2, RefreshCw, Hop as Home } from 'lucide-react';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface ReceiptData {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useListMenuItems, useCreateOrder } from '@workspace/api-client-react';
 import { Card, CardContent, Button, Input } from '@/components/ui/shared';
 import { useCart } from '@/contexts/CartContext';
-import { Plus, Minus, Flame, CheckCircle2 } from 'lucide-react';
+import { Plus, Minus, Flame, CircleCheck as CheckCircle2 } from 'lucide-react';
 
 export default function QrOrder() {
   const searchParams = new URLSearchParams(window.location.search);

@@ -3,11 +3,7 @@ import { useListMenuItems, useGetSettings, useCreateOrder, useLookupMember, useV
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
-import {
-  ShoppingBag, Plus, Minus, X, Flame, Utensils, Search,
-  Tag, User, CheckCircle2, MapPin, Phone, Bike, ChefHat,
-  Package, Clock, ChevronRight, Star, Loader2, Ticket
-} from 'lucide-react';
+import { ShoppingBag, Plus, Minus, X, Flame, Utensils, Search, Tag, User, CircleCheck as CheckCircle2, MapPin, Phone, Bike, ChefHat, Package, Clock, ChevronRight, Star, Loader as Loader2, Ticket } from 'lucide-react';
 
 const CATEGORY_EMOJIS: Record<string, string> = {
   Starters: '🍗', Chinese: '🍜', Burgers: '🍔', Rice: '🍚',

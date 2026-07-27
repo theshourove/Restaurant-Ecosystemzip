@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useListMenuItems, useCreateMenuItem, useUpdateMenuItem, useDeleteMenuItem, getListMenuItemsQueryKey } from '@workspace/api-client-react';
 import { Card, CardContent, Badge, Button, Input, Label, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/shared';
 import { useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2, X, Upload, Image } from 'lucide-react';
+import { Plus, CreditCard as Edit, Trash2, X, Upload, Image } from 'lucide-react';
 
 const CATEGORIES = ['Starters', 'Chinese', 'Burgers', 'Rice', 'Pizza', 'Drinks', 'Desserts'];
 
