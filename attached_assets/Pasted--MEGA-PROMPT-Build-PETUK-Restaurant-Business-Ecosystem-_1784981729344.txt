@@ -1,0 +1,468 @@
+# MEGA PROMPT: Build "PETUK" Restaurant Business Ecosystem (Web-Based)
+
+You are a senior full-stack web developer. Build a complete, production-ready restaurant business ecosystem for "PETUK" — a Bangladeshi-Chinese fast-food restaurant. Everything runs on a website (PHP + MySQL on Hostinger shared hosting). No desktop app. No Node.js. No frameworks. Pure PHP 8.x, MySQL, Tailwind CSS via CDN, Vanilla JS.
+
+## RESTAURANT INFO
+- Name: PETUK
+- Address: Gudaraghat, Jhawchar, Hazaribagh, Dhaka-1211
+- Phone: 01990800951
+- Currency: ৳ (Taka)
+- Tax Rate: 5% (configurable, can be disabled)
+- Theme: Fire & Flame — Yellow + Red fast-food vibe (like KFC/McDonald's)
+
+## TECH STACK (MANDATORY — NO EXCEPTIONS)
+- PHP 8.x (pure, no Laravel/CodeIgniter/Symfony)
+- MySQL 5.7+ or MariaDB 10.3+ (via PDO, prepared statements, utf8mb4)
+- Tailwind CSS via CDN (https://cdn.tailwindcss.com)
+- Vanilla JavaScript (NO jQuery, NO React, NO Vue)
+- Google Fonts: Poppins (headings) + Inter (body)
+- Hostinger shared hosting compatible (PHP 8, MySQL, no SSH required for basic deploy)
+- No build tools, no npm, no composer
+
+## COLOR THEME — "FIRE & FLAME" (KFC-GRADE PROFESSIONAL)
+Primary Background: #FFD600 (fire yellow — the MAIN background, like KFC)
+Cards/Panels: #FFFFFF (pure white)
+Headers/Buttons: #E53935 (fire red)
+Dark Red (close/pressed): #B71C1C
+Borders: #FFE082 (soft yellow) / #FFAB00 (darker yellow for emphasis)
+Text Primary: #1A1A1A (near-black, high contrast on yellow/white)
+Text Muted: #5D4037 (warm brown for labels)
+Text on Red: #FFFFFF (white)
+Success: #2E7D32
+Error: #C62828
+Warning/Pending: #FFAB00
+
+RULES:
+- NO dark backgrounds anywhere. NO black. NO gray backgrounds.
+- NO blue. NO purple. NO green backgrounds (green only for success badges).
+- NO emojis in UI labels, buttons, headers, or navigation. Use SVG icons or text only.
+- Food emojis (🍗🍔🍕) only in database as fallback data — NEVER displayed when images load.
+- Every form field: white background + dark text (#1A1A1A) + yellow border. NO white text on white/yellow fields.
+- Every button minimum 44px touch target.
+- Professional typography: uppercase headings with letter-spacing, bold weights.
+- Card shadows: subtle (0 2px 8px rgba(0,0,0,0.08)), not thick borders.
+- All text that might overflow: use text-overflow: ellipsis or Tailwind's truncate class.
+
+## DATABASE SCHEMA (MySQL)
+
+```sql
+-- Menu items (53 default items across 7 categories)
+CREATE TABLE menu_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    emoji VARCHAR(10) DEFAULT '',
+    image_path VARCHAR(255),
+    is_available TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_category (category),
+    INDEX idx_available (is_available)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Orders (comprehensive — supports all discount types, delivery, members)
+CREATE TABLE orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id VARCHAR(20) UNIQUE NOT NULL,
+    items JSON NOT NULL,
+    subtotal DECIMAL(10,2) NOT NULL DEFAULT 0,
+    tax_enabled TINYINT(1) DEFAULT 0,
+    tax_rate DECIMAL(5,2) DEFAULT 0,
+    tax_amount DECIMAL(10,2) DEFAULT 0,
+    member_discount DECIMAL(10,2) DEFAULT 0,
+    member_tier VARCHAR(20),
+    member_phone VARCHAR(20),
+    coupon_code VARCHAR(50),
+    coupon_discount DECIMAL(10,2) DEFAULT 0,
+    manual_discount DECIMAL(10,2) DEFAULT 0,
+    manual_discount_reason VARCHAR(50),
+    points_earned INT DEFAULT 0,
+    points_redeemed INT DEFAULT 0,
+    delivery_fee DECIMAL(10,2) DEFAULT 0,
+    total DECIMAL(10,2) NOT NULL DEFAULT 0,
+    order_type ENUM('dine_in','takeout','delivery') DEFAULT 'takeout',
+    table_number INT DEFAULT NULL,
+    customer_name VARCHAR(100),
+    customer_phone VARCHAR(20),
+    customer_address TEXT,
+    payment_method ENUM('cash','card','bkash','cash_on_delivery','cash_on_desk') DEFAULT 'cash',
+    rider_name VARCHAR(100),
+    status ENUM('pending','cooking','ready','served','delivered','completed','cancelled') DEFAULT 'pending',
+    source ENUM('website','qr','pos_web','pos') DEFAULT 'website',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_status (status),
+    INDEX idx_source (source),
+    INDEX idx_created (created_at),
+    INDEX idx_phone (customer_phone),
+    INDEX idx_order_id (order_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Admin users (role-based)
+CREATE TABLE admin_users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    display_name VARCHAR(100),
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(30) DEFAULT 'Admin',
+    station VARCHAR(50) DEFAULT 'All',
+    is_active TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_role (role)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Members (loyalty program)
+CREATE TABLE members (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    phone VARCHAR(20) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    points INT DEFAULT 0,
+    tier VARCHAR(20) DEFAULT 'Regular',
+    joined DATE DEFAULT (CURRENT_DATE),
+    INDEX idx_phone (phone),
+    INDEX idx_tier (tier)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Coupons
+CREATE TABLE coupons (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50) UNIQUE NOT NULL,
+    type ENUM('fixed','percent') DEFAULT 'fixed',
+    value DECIMAL(10,2) NOT NULL,
+    min_order DECIMAL(10,2) DEFAULT 0,
+    max_uses INT DEFAULT 100,
+    used_count INT DEFAULT 0,
+    expiry DATE,
+    is_active TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_code (code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Riders
+CREATE TABLE riders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    status ENUM('Available','On Delivery','Off Duty') DEFAULT 'Available',
+    total_deliveries INT DEFAULT 0,
+    earnings DECIMAL(10,2) DEFAULT 0,
+    salary DECIMAL(10,2) DEFAULT 0,
+    assigned_order_id VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Settings (single row, id=1)
+CREATE TABLE settings (
+    id INT PRIMARY KEY DEFAULT 1,
+    restaurant_name VARCHAR(100) DEFAULT 'PETUK',
+    address VARCHAR(255) DEFAULT 'Gudaraghat, Jhawchar, Hazaribagh, Dhaka-1211',
+    phone VARCHAR(20) DEFAULT '01990800951',
+    tax_enabled TINYINT(1) DEFAULT 0,
+    tax_rate DECIMAL(5,2) DEFAULT 5.00,
+    tax_name VARCHAR(20) DEFAULT 'VAT',
+    currency VARCHAR(5) DEFAULT '৳',
+    paper_width INT DEFAULT 48,
+    delivery_fee DECIMAL(10,2) DEFAULT 60.00,
+    delivery_fee_enabled TINYINT(1) DEFAULT 1,
+    points_per_100_taka INT DEFAULT 1,
+    points_redemption_rate DECIMAL(5,2) DEFAULT 1.00,
+    max_cashier_discount_percent DECIMAL(5,2) DEFAULT 5.00,
+    max_cashier_discount_amount DECIMAL(10,2) DEFAULT 100.00,
+    sync_api_key VARCHAR(100) DEFAULT 'petuk_sync_key_2025'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+SEED DATA
+53 Menu Items (7 categories, prices in ৳):
+Starters: Chicken Wings 180, Chicken Lollipop 220, Spring Rolls 150, French Fries 120, Garlic Bread 100, Prawn Tempura 280, Chicken Satay 200, Veggie Rolls 100
+Chinese: Chicken Chow Mein 180, Beef Chow Mein 220, Chicken Manchurian 200, Chili Chicken 220, Sweet & Sour Chicken 220, Hakka Noodles 170, Szechuan Chicken 240, Prawn Fried Noodles 260
+Burgers: Classic Burger 180, Cheese Burger 220, Chicken Burger 200, Double Burger 280, BBQ Burger 250, Crispy Chicken Burger 220, Fish Burger 230, Veggie Burger 160
+Rice: Egg Fried Rice 130, Chicken Fried Rice 160, Prawn Fried Rice 220, Beef Fried Rice 200, Plain Rice 80, Chicken Biriyani 250, Mutton Biriyani 320, Khichuri 120
+Pizza: Cheese Pizza 350, Chicken Pizza 400, Pepperoni Pizza 420, Veggie Pizza 300, BBQ Chicken Pizza 450
+Drinks: Coca Cola 60, Sprite 60, Mineral Water 40, Fresh Lemonade 100, Mango Lassi 120, Chocolate Milkshake 150, Strawberry Milkshake 150, Vanilla Milkshake 150, Cold Coffee 130, Fresh Orange Juice 120
+Desserts: Ice Cream 100, Chocolate Brownie 150, Chocolate Cake 180, Firni 80, Rice Pudding 90, Gulab Jamun 80
+
+Default Admin Users (password: admin123 for all — bcrypt hash):
+admin / Admin / All stations
+manager / Manager / All stations
+cashier1 / Cashier / Counter
+chef / Chef / Main Kitchen
+juicebar / Juice Bar / Juice Bar
+teacounter / Tea Counter / Tea Counter
+kitchen1 / Kitchen / Main Kitchen
+Sample Coupons:
+FIRST50: fixed ৳50, min order ৳300, max 100 uses, expiry 2026-12-31
+WELCOME10: percent 10%, min order ৳500, max 50 uses, expiry 2026-12-31
+COMBO100: fixed ৳100, min order ৳800, max 30 uses, expiry 2026-12-31
+Sample Riders:
+Karim / 01811111111 / Available / salary 12000
+Rahim / 01822222222 / Available / salary 12000
+Jamal / 01833333333 / Off Duty / salary 12000
+MEMBERSHIP TIER SYSTEM
+0-499 points: Regular, 0% discount, color #FFFFFF
+500-1999 points: Silver, 5% discount, color #C0C0C0
+2000-4999 points: Gold, 10% discount, color #FFD600
+5000+ points: Platinum, 15% discount, color #E5E4E2
+Points earned: 1 point per ৳100 in subtotal (configurable)
+Points earned on ORIGINAL subtotal (before discounts)
+DISCOUNT STACKING ORDER (CRITICAL)
+Subtotal = sum of (price × qty)
+Member Discount = Subtotal × (tier_percent / 100) — applied automatically when member is linked
+After Member = Subtotal - Member Discount
+Coupon Discount = coupon_type=="percent" ? (AfterMember × coupon_value/100) : coupon_value
+After Coupon = AfterMember - Coupon Discount
+Manual Discount = manual_type=="percent" ? (AfterCoupon × manual_value/100) : manual_value
+Capped at maxCashierDiscountPercent or maxCashierDiscountAmount from settings
+After All Discounts = AfterCoupon - Manual Discount (minimum 0, cannot go negative)
+Tax = taxEnabled ? (AfterAllDiscounts × taxRate/100) : 0
+Delivery Fee = (orderType=="Delivery" && deliveryFeeEnabled) ? deliveryFee : 0
+TOTAL = AfterAllDiscounts + Tax + DeliveryFee
+FILE STRUCTURE (output every file completely)
+petuk/
+├── config.php                    # DB config, restaurant info, helper functions
+├── index.php                     # Customer: menu + cart + checkout
+├── qr-order.php                  # Customer: table-locked QR ordering
+├── order-tracking.php            # Customer: track by order ID or phone
+├── profile.php                   # Customer: membership profile lookup
+├── register.php                  # Customer: new member registration
+├── api/
+│   ├── orders.php                # GET (list/single) + POST (create) + POST (status update)
+│   ├── menu.php                  # GET (list) + POST (sync from admin)
+│   ├── coupon.php                # POST: validate coupon code
+│   ├── member.php                # GET (lookup) + POST (register)
+│   └── sync.php                  # POS sync endpoints + stats
+├── admin/
+│   ├── login.php                 # Admin login (bcrypt, session-based)
+│   ├── logout.php                # Destroy session
+│   ├── _nav.php                  # Shared admin navigation bar
+│   ├── index.php                 # Dashboard: stats, charts, live feed
+│   ├── orders.php                # Order management: filter, status actions
+│   ├── pos.php                   # WEB-BASED POS (replaces Windows app) — full ordering interface
+│   ├── kitchen.php               # Kitchen Display System (KDS) — web-based
+│   ├── menu.php                  # Menu CRUD with image upload
+│   ├── members.php               # Member management: search, add, edit points
+│   ├── coupons.php               # Coupon CRUD: create, toggle, delete
+│   ├── riders.php                # Rider management: cards, duty toggle, assign orders
+│   ├── reports.php               # Sales reports: date filter, charts, top sellers
+│   ├── users.php                 # Admin user management: roles, stations, active toggle
+│   └── settings.php              # All settings: tax, delivery, membership, discounts
+├── assets/
+│   ├── css/
+│   │   └── style.css             # Fire theme: KFC-grade professional
+│   ├── js/
+│   │   ├── cart.js               # Cart logic + member lookup + coupon validation
+│   │   ├── pos.js                # Web POS ordering logic
+│   │   └── kitchen.js            # KDS auto-refresh + status advancement
+│   └── img/                      # Food images + logo + QR codes
+└── database.sql                  # Full schema + all seed data
+
+PAGE SPECIFICATIONS
+config.php
+DB constants: DB_HOST (localhost), DB_NAME, DB_USER, DB_PASS, DB_CHARSET (utf8mb4)
+Restaurant constants: RESTAURANT_NAME (PETUK), RESTAURANT_ADDRESS, RESTAURANT_PHONE, RESTAURANT_CURRENCY (৳)
+TAX_RATE (5.0), PAPER_WIDTH_CHARS (48)
+SYNC_API_KEY (petuk_sync_key_2025)
+PDO connection with ERRMODE_EXCEPTION, FETCH_ASSOC, EMULATE_PREPARES=false
+Helper functions: db(), generateOrderId() (format: PK-XXXX), formatTaka(), calculateTax(), json_response(), require_admin(), e() (htmlspecialchars), getTier($points) → returns [name, discountPercent, colorHex]
+index.php (Customer Homepage)
+Red navbar (sticky): "PETUK" logo left, Menu/Track Order/Contact links center, Cart button right
+Hero section: red gradient bg, "PETUK" in 7xl white bold, subtitle, "ORDER NOW" + "TRACK ORDER" buttons
+Menu grid: 4 columns desktop, 2 mobile, white cards with food image, name, price in red, "ADD TO CART" red button
+Category pills: All, Starters, Chinese, Burgers, Rice, Pizza, Drinks, Desserts (active = red bg white text)
+Cart drawer (right slide-in): white panel, red header, item list with qty +/- buttons
+Cart has: phone field (member lookup), coupon code field + apply button
+Member discount shows green text if found
+Coupon discount shows green if valid, red if invalid
+Checkout modal: name, phone, order type (delivery/takeout/dine-in), address (if delivery), table (if dine-in), payment method
+Success modal: green checkmark SVG, order ID, "Track My Order" link
+No emojis anywhere. Use SVG icons for checkmark, close buttons.
+qr-order.php (Table Ordering)
+Same menu as index.php but locked to table number (?table=N)
+Red "TABLE N" badge in navbar
+Simplified checkout: name + phone only, order type = dine-in, payment = cash at counter
+No delivery address field
+order-tracking.php
+Search by Order ID OR Phone number
+Visual timeline: 5 dots (pending → cooking → ready → served → delivered)
+Done dots = red, current = yellow, future = gray
+Checkmark SVG in done dots
+Full order details: items, discounts, tax, delivery, total, status, timestamp
+profile.php (Customer Membership)
+Phone lookup form
+If found: name, tier badge (colored), points, discount %, progress bar to next tier, order history
+If not found: "Not a member yet? Register." link
+register.php
+Name + Phone form
+Creates member as Regular tier, 0 points
+Success: green checkmark, "View Profile" link
+admin/login.php
+White card on yellow bg, red border accent
+"PETUK" in red bold, "Admin Login" subtitle
+Username/password fields
+Session: admin_logged_in, admin_user, admin_user_id, admin_role, admin_display_name
+Check is_active — if 0, show "Account deactivated" error
+admin/_nav.php
+Red sticky navbar with shadow
+"PETUK" + "ADMIN" yellow badge
+Links: Dashboard, Orders, POS, Kitchen, Menu, Members, Coupons, Riders, Reports, Users, Settings
+Active page = white bg red text, inactive = white text hover dark red
+Settings + Users links only visible if role == Admin
+Shows current user name + role
+admin/index.php (Dashboard)
+Stat cards (white, shadow): Today's Sales (red number), Today's Orders, Pending Orders, Cooking Now, Total Discounts Given, Active Members, Pending Deliveries
+7-day sales bar chart: CSS bars, red fill, day labels
+Top sellers (7-day): ranked list with qty sold
+Live order feed: 10 most recent orders, auto-refresh every 30 seconds
+All numbers in red (#E53935), labels in brown (#5D4037)
+admin/orders.php
+Filter tabs: All, Pending, Cooking, Ready, Completed, Cancelled
+Table: Order ID, Customer, Type, Source, Items preview, Total, Status (colored badge), Time, Actions
+Actions: Accept (pending→cooking), Mark Ready (cooking→ready), Complete (ready→completed), Cancel
+Status badges: pending=red, cooking=yellow, ready=green, completed=green, cancelled=gray
+admin/pos.php (WEB-BASED POS — replaces Windows app)
+Full-screen ordering interface (like a POS terminal)
+Left: category pills + menu grid (3-4 columns, touch-friendly cards)
+Right panel (358px): table selector, order type toggles (Dine In/Takeout/Delivery)
+Member lookup: phone field + Lookup button → shows tier badge, points, auto discount
+Cart list: items with qty +/- buttons, remove button
+Coupon field + Apply button
+Manual Discount button → opens popup with Percentage/Fixed toggle, value, reason dropdown, max validation
+Totals area: Subtotal, Member Discount (green), Coupon Discount (green), Manual Discount (green), Tax (if enabled), Delivery Fee (if delivery), TOTAL (red, large)
+Payment button → popup with Cash/Card/bKash, tendered amount, change calculation
+On order complete: save to DB, print receipt via browser (window.print with thermal-printer CSS), update member points, increment coupon usage
+If delivery: show rider assignment popup with available riders
+admin/kitchen.php (Kitchen Display System)
+Very dark text on light bg for kitchen visibility (use white bg with large dark text)
+Order cards in grid: white cards with colored left border (red=new, yellow=cooking, green=ready, gray=served)
+Large text for easy reading across kitchen
+Auto-refresh every 8 seconds
+Sound alert on new order (JavaScript Audio API beep)
+Tap card to advance status: pending → cooking → ready → served
+Shows: Order ID, type, table, items (large text), time elapsed
+admin/menu.php
+Items grouped by category with image thumbnails
+Add/Edit modal: name, price, category dropdown, image upload (multipart/form-data), availability toggle
+Image upload: validate MIME type (jpg/png/webp), save to assets/img/, store path in DB
+Delete with JS confirm
+admin/members.php
+Search by phone or name
+Table: Phone, Name, Tier (colored badge), Points, Joined, Actions
+Add member: phone + name form
+Edit: adjust points manually, tier auto-calculates from points
+admin/coupons.php
+Table: Code (monospace), Type, Value, Min Order, Used/Max, Expiry, Status (badge), Actions
+Create coupon form: code, type (fixed/percent), value, min_order, max_uses, expiry date
+Toggle active/inactive
+Delete with confirm
+admin/riders.php
+Rider cards (2 per row): name, phone, status badge, deliveries count, earnings, salary
+Add rider: name, phone, salary
+Toggle duty: Available ↔ Off Duty
+"Complete Delivery" button on "On Delivery" riders → marks delivered, increments deliveries, adds ৳60 earnings
+Assign order: shows pending delivery orders, select to assign
+admin/reports.php
+Date range filter (From/To date pickers)
+Stat cards: Total Sales, Orders, Avg Order, Tax Collected, Total Discounts
+Daily sales bar chart (CSS bars, red fill)
+Top 15 sellers with rank, qty, amount
+Full order detail table for range
+admin/users.php
+Table: Username, Display Name, Role (colored badge), Station, Status, Created, Actions
+Add/Edit: username, display_name, password, role dropdown, station dropdown, active checkbox
+Roles: Admin, Manager, Cashier, Chef, Juice Bar, Tea Counter, Kitchen
+Stations: All, Counter, Main Kitchen, Juice Bar, Tea Counter, Chinese Station, Grill Station
+Toggle active/inactive
+Delete (cannot delete self, cannot delete last admin)
+Only Admin role can access this page
+admin/settings.php (Admin only)
+Restaurant Info: name, address, phone
+Tax Settings: enable toggle, tax name, tax rate
+Delivery Settings: enable toggle, delivery fee amount
+Membership & Discount: points per ৳100, redemption rate, max cashier discount %, max cashier discount ৳
+Sync: API key
+API ENDPOINTS
+api/orders.php
+GET ?status=pending → list by status (requires sync key)
+GET ?id=PK-0001 → single order (public)
+POST (JSON body) → create order from website/QR (public)
+Validates: customer_name, customer_phone required; delivery needs address; dine-in needs table
+Calculates: subtotal, member_discount (if member_phone provided), coupon_discount (if coupon_code provided), tax (if enabled), delivery_fee (if delivery), total
+Returns: { ok: true, order_id: "PK-0001", total: 656 }
+POST action=accept|ready|complete|cancel, id=N (requires sync key)
+api/menu.php
+GET → list available items (public)
+GET ?category=Pizza → filter
+POST (JSON, sync key) → replace entire menu
+api/coupon.php
+POST { code: "FIRST50", subtotal: 500 }
+Returns: { valid: true, discount: 50, message: "Coupon applied: -৳50" }
+Validates: code exists, is_active, not expired, used_count < max_uses, subtotal >= min_order
+api/member.php
+GET ?phone=01XXXXXXXXX → { found: true, name, points, tier, discount_percent, color }
+POST { phone, name } → create member, returns { ok: true, points: 0, tier: "Regular" }
+api/sync.php (all require sync key)
+POST action=sync_pos_order → push order from external POS
+GET action=stats → { today_sales, today_orders, pending, cooking, top_sellers }
+RECEIPT FORMAT (browser-printable, thermal 80mm)
+When printing receipt (via window.print with @media print CSS):
+
+Use monospace font, 48 chars width
+Print: PETUK, address, phone, order ID, date, type, table
+If member: Member: phone (Tier -X%)
+Items: NAME (padded) QTY AMT
+Subtotal
+Each discount line (if > 0): "Member (Gold 10%): -৳72", "Coupon (FIRST50): -৳50", "Discount (Regular Customer): -৳30"
+After Discount: ৳568
+Tax (if enabled): "VAT (5%): ৳28"
+Delivery Fee (if delivery): ৳60
+TOTAL: ৳656 (bold)
+Payment method, tendered, change (if cash)
+Points Earned: +7 (if member)
+Total Points: 2,157 (if member)
+"Thank you for dining with us!"
+"Visit us again!"
+Skip any line that doesn't apply (no zero amounts, no empty fields)
+JAVASCRIPT REQUIREMENTS
+cart.js (customer-facing)
+Cart stored in localStorage (key: petuk_cart)
+Add/remove/qty change functions
+Member lookup: fetch api/member.php?phone=X → show tier badge + discount
+Coupon validation: fetch api/coupon.php → show green/red status
+Checkout: POST to api/orders.php with all discount fields
+Toast notifications (custom, no alert())
+Order type radio buttons toggle address/table fields
+pos.js (admin POS)
+Same cart logic but for staff ordering
+Member lookup with auto-discount application
+Coupon validation
+Manual discount popup with type toggle + max validation
+Payment popup with tendered/change calculation
+Receipt printing via window.print
+Rider assignment for delivery orders
+kitchen.js (KDS)
+Auto-refresh orders every 8 seconds (fetch api/orders.php?status=pending,cooking,ready)
+Click card → advance status (POST api/orders.php action=accept/ready/complete)
+Sound alert: Web Audio API beep on new order count increase
+Shows time elapsed since order placed
+QUALITY REQUIREMENTS
+KFC-GRADE POLISH: Every element looks intentional and professional. No rough edges.
+TOUCH OPTIMIZED: All clickable elements minimum 44px. Large touch targets.
+ERROR HANDLING: Every DB query in try/catch. Every null check. Graceful fallbacks. Never crash.
+CODE QUALITY: Clean, well-commented PHP. Separation of concerns. No SQL injection (prepared statements). No XSS (htmlspecialchars on all output).
+RESPONSIVE: Works on mobile (customer ordering), tablet (QR table ordering), desktop (admin/POS).
+NO EMOJIS in any UI element. Use SVG icons or text labels only.
+PROFESSIONAL TYPOGRAPHY: Poppins for headings (uppercase, tracking-wide), Inter for body. Bold weights for emphasis.
+DEPLOYMENT NOTES
+Upload all files to Hostinger public_html/
+Import database.sql via phpMyAdmin
+Edit config.php with DB credentials
+Set assets/img/ folder permissions to 755 (writable for image uploads)
+Generate QR codes for tables 1-10 pointing to: https://yourdomain.com/qr-order.php?table=N
+Enable HTTPS (free SSL from Hostinger)
+Change all default passwords immediately
+OUTPUT REQUIREMENTS
+Output EVERY file completely. Label each file clearly:
+=== FILE: path/filename ===
+Do not abbreviate. Do not skip. Do not use placeholders like "// ... rest of code".
+Every file must be production-ready and complete.

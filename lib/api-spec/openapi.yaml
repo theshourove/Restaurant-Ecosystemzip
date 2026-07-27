@@ -3,20 +3,40 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: PETUK Restaurant Business Ecosystem API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: menu
+    description: Menu item operations
+  - name: orders
+    description: Order operations
+  - name: members
+    description: Loyalty member operations
+  - name: coupons
+    description: Coupon operations
+  - name: riders
+    description: Rider/delivery operations
+  - name: auth
+    description: Admin authentication
+  - name: users
+    description: Admin user management
+  - name: settings
+    description: Restaurant settings
+  - name: dashboard
+    description: Dashboard statistics
+  - name: reports
+    description: Sales reports
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +44,1312 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ── AUTH ──────────────────────────────────────────────────────────────────
+  /auth/login:
+    post:
+      operationId: adminLogin
+      tags: [auth]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "401":
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      operationId: adminLogout
+      tags: [auth]
+      summary: Admin logout
+      responses:
+        "200":
+          description: Logged out
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current admin user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "401":
+          description: Not authenticated
+
+  # ── MENU ──────────────────────────────────────────────────────────────────
+  /menu:
+    get:
+      operationId: listMenuItems
+      tags: [menu]
+      summary: List menu items
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: available
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Menu items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MenuItem"
+    post:
+      operationId: createMenuItem
+      tags: [menu]
+      summary: Create menu item (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MenuItemInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MenuItem"
+
+  /menu/{id}:
+    get:
+      operationId: getMenuItem
+      tags: [menu]
+      summary: Get menu item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Menu item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MenuItem"
+    put:
+      operationId: updateMenuItem
+      tags: [menu]
+      summary: Update menu item (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MenuItemInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MenuItem"
+    delete:
+      operationId: deleteMenuItem
+      tags: [menu]
+      summary: Delete menu item (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  # ── ORDERS ────────────────────────────────────────────────────────────────
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: List orders
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: source
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Orders
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderListResponse"
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Create order (customer/POS)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderCreated"
+
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      tags: [orders]
+      summary: Get order by order_id string
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{id}/status:
+    patch:
+      operationId: updateOrderStatus
+      tags: [orders]
+      summary: Update order status (admin/kitchen)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderStatusUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/track:
+    get:
+      operationId: trackOrder
+      tags: [orders]
+      summary: Track order by order_id or phone
+      parameters:
+        - name: order_id
+          in: query
+          schema:
+            type: string
+        - name: phone
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Matching orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+
+  # ── MEMBERS ───────────────────────────────────────────────────────────────
+  /members:
+    get:
+      operationId: listMembers
+      tags: [members]
+      summary: List members (admin)
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Member"
+    post:
+      operationId: createMember
+      tags: [members]
+      summary: Register new member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemberInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+
+  /members/lookup:
+    get:
+      operationId: lookupMember
+      tags: [members]
+      summary: Lookup member by phone
+      parameters:
+        - name: phone
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Member found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemberLookup"
+
+  /members/{id}:
+    put:
+      operationId: updateMember
+      tags: [members]
+      summary: Update member (admin — adjust points etc.)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemberUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+
+  # ── COUPONS ───────────────────────────────────────────────────────────────
+  /coupons:
+    get:
+      operationId: listCoupons
+      tags: [coupons]
+      summary: List coupons (admin)
+      responses:
+        "200":
+          description: Coupons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Coupon"
+    post:
+      operationId: createCoupon
+      tags: [coupons]
+      summary: Create coupon (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CouponInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Coupon"
+
+  /coupons/validate:
+    post:
+      operationId: validateCoupon
+      tags: [coupons]
+      summary: Validate coupon code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CouponValidateInput"
+      responses:
+        "200":
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CouponValidation"
+
+  /coupons/{id}:
+    patch:
+      operationId: updateCoupon
+      tags: [coupons]
+      summary: Toggle coupon active/inactive (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CouponUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Coupon"
+    delete:
+      operationId: deleteCoupon
+      tags: [coupons]
+      summary: Delete coupon (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  # ── RIDERS ────────────────────────────────────────────────────────────────
+  /riders:
+    get:
+      operationId: listRiders
+      tags: [riders]
+      summary: List riders (admin)
+      responses:
+        "200":
+          description: Riders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Rider"
+    post:
+      operationId: createRider
+      tags: [riders]
+      summary: Add rider (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RiderInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rider"
+
+  /riders/{id}:
+    patch:
+      operationId: updateRider
+      tags: [riders]
+      summary: Update rider status/duty (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RiderUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rider"
+
+  /riders/{id}/assign:
+    post:
+      operationId: assignRider
+      tags: [riders]
+      summary: Assign rider to delivery order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RiderAssignInput"
+      responses:
+        "200":
+          description: Assigned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rider"
+
+  /riders/{id}/complete-delivery:
+    post:
+      operationId: completeDelivery
+      tags: [riders]
+      summary: Mark delivery complete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Delivery completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rider"
+
+  # ── ADMIN USERS ───────────────────────────────────────────────────────────
+  /users:
+    get:
+      operationId: listAdminUsers
+      tags: [users]
+      summary: List admin users
+      responses:
+        "200":
+          description: Admin users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminUser"
+    post:
+      operationId: createAdminUser
+      tags: [users]
+      summary: Create admin user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUserInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+
+  /users/{id}:
+    put:
+      operationId: updateAdminUser
+      tags: [users]
+      summary: Update admin user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUserInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+    delete:
+      operationId: deleteAdminUser
+      tags: [users]
+      summary: Delete admin user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  # ── SETTINGS ──────────────────────────────────────────────────────────────
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get restaurant settings
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+    put:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update settings (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SettingsUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+
+  # ── DASHBOARD ─────────────────────────────────────────────────────────────
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Dashboard statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/sales-chart:
+    get:
+      operationId: getSalesChart
+      tags: [dashboard]
+      summary: 7-day sales bar chart data
+      responses:
+        "200":
+          description: Daily sales
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DailySales"
+
+  /dashboard/top-sellers:
+    get:
+      operationId: getTopSellers
+      tags: [dashboard]
+      summary: Top selling items (7 days)
+      responses:
+        "200":
+          description: Top sellers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TopSeller"
+
+  /dashboard/recent-orders:
+    get:
+      operationId: getRecentOrders
+      tags: [dashboard]
+      summary: 10 most recent orders
+      responses:
+        "200":
+          description: Recent orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+
+  # ── REPORTS ───────────────────────────────────────────────────────────────
+  /reports:
+    get:
+      operationId: getReports
+      tags: [reports]
+      summary: Sales report with date range
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Report data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportData"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    # ── AUTH ──────────────────────────────────────────────────────────────
+    LoginInput:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    AdminSession:
+      type: object
+      required: [id, username, displayName, role, station]
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        displayName:
+          type: string
+        role:
+          type: string
+        station:
+          type: string
+
+    AdminUser:
+      type: object
+      required: [id, username, displayName, role, station, isActive, createdAt]
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        displayName:
+          type: string
+        role:
+          type: string
+        station:
+          type: string
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+
+    AdminUserInput:
+      type: object
+      required: [username, displayName, role, station]
+      properties:
+        username:
+          type: string
+        displayName:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+        station:
+          type: string
+        isActive:
+          type: boolean
+
+    # ── MENU ──────────────────────────────────────────────────────────────
+    MenuItem:
+      type: object
+      required: [id, name, price, category, isAvailable, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+        emoji:
+          type: ["string", "null"]
+        imagePath:
+          type: ["string", "null"]
+        isAvailable:
+          type: boolean
+        createdAt:
+          type: string
+
+    MenuItemInput:
+      type: object
+      required: [name, price, category]
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+        emoji:
+          type: string
+        imagePath:
+          type: string
+        isAvailable:
+          type: boolean
+
+    # ── ORDERS ────────────────────────────────────────────────────────────
+    OrderItem:
+      type: object
+      required: [id, name, price, qty]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        price:
+          type: number
+        qty:
+          type: integer
+        category:
+          type: string
+
+    Order:
+      type: object
+      required: [id, orderId, items, subtotal, total, status, orderType, paymentMethod, source, createdAt]
+      properties:
+        id:
+          type: integer
+        orderId:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        subtotal:
+          type: number
+        taxEnabled:
+          type: boolean
+        taxRate:
+          type: number
+        taxAmount:
+          type: number
+        memberDiscount:
+          type: number
+        memberTier:
+          type: ["string", "null"]
+        memberPhone:
+          type: ["string", "null"]
+        couponCode:
+          type: ["string", "null"]
+        couponDiscount:
+          type: number
+        manualDiscount:
+          type: number
+        manualDiscountReason:
+          type: ["string", "null"]
+        pointsEarned:
+          type: integer
+        pointsRedeemed:
+          type: integer
+        deliveryFee:
+          type: number
+        total:
+          type: number
+        orderType:
+          type: string
+          enum: [dine_in, takeout, delivery]
+        tableNumber:
+          type: ["integer", "null"]
+        customerName:
+          type: ["string", "null"]
+        customerPhone:
+          type: ["string", "null"]
+        customerAddress:
+          type: ["string", "null"]
+        paymentMethod:
+          type: string
+          enum: [cash, card, bkash, cash_on_delivery, cash_on_desk]
+        riderName:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, cooking, ready, served, delivered, completed, cancelled]
+        source:
+          type: string
+          enum: [website, qr, pos_web, pos]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    OrderListResponse:
+      type: object
+      required: [orders, total]
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+        total:
+          type: integer
+
+    OrderInput:
+      type: object
+      required: [items, orderType, paymentMethod]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        orderType:
+          type: string
+          enum: [dine_in, takeout, delivery]
+        customerName:
+          type: string
+        customerPhone:
+          type: string
+        customerAddress:
+          type: string
+        tableNumber:
+          type: integer
+        paymentMethod:
+          type: string
+          enum: [cash, card, bkash, cash_on_delivery, cash_on_desk]
+        memberPhone:
+          type: string
+        couponCode:
+          type: string
+        manualDiscount:
+          type: number
+        manualDiscountReason:
+          type: string
+        source:
+          type: string
+          enum: [website, qr, pos_web, pos]
+        riderName:
+          type: string
+
+    OrderCreated:
+      type: object
+      required: [ok, orderId, total]
+      properties:
+        ok:
+          type: boolean
+        orderId:
+          type: string
+        total:
+          type: number
+
+    OrderStatusUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [pending, cooking, ready, served, delivered, completed, cancelled]
+
+    # ── MEMBERS ───────────────────────────────────────────────────────────
+    Member:
+      type: object
+      required: [id, phone, name, points, tier, joined]
+      properties:
+        id:
+          type: integer
+        phone:
+          type: string
+        name:
+          type: string
+        points:
+          type: integer
+        tier:
+          type: string
+        discountPercent:
+          type: number
+        tierColor:
+          type: string
+        joined:
+          type: string
+
+    MemberLookup:
+      type: object
+      required: [found]
+      properties:
+        found:
+          type: boolean
+        member:
+          $ref: "#/components/schemas/Member"
+
+    MemberInput:
+      type: object
+      required: [phone, name]
+      properties:
+        phone:
+          type: string
+        name:
+          type: string
+
+    MemberUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        points:
+          type: integer
+
+    # ── COUPONS ───────────────────────────────────────────────────────────
+    Coupon:
+      type: object
+      required: [id, code, type, value, minOrder, maxUses, usedCount, isActive, createdAt]
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        type:
+          type: string
+          enum: [fixed, percent]
+        value:
+          type: number
+        minOrder:
+          type: number
+        maxUses:
+          type: integer
+        usedCount:
+          type: integer
+        expiry:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+
+    CouponInput:
+      type: object
+      required: [code, type, value]
+      properties:
+        code:
+          type: string
+        type:
+          type: string
+          enum: [fixed, percent]
+        value:
+          type: number
+        minOrder:
+          type: number
+        maxUses:
+          type: integer
+        expiry:
+          type: string
+
+    CouponUpdate:
+      type: object
+      properties:
+        isActive:
+          type: boolean
+        code:
+          type: string
+        type:
+          type: string
+          enum: [fixed, percent]
+        value:
+          type: number
+        minOrder:
+          type: number
+        maxUses:
+          type: integer
+        expiry:
+          type: string
+
+    CouponValidateInput:
+      type: object
+      required: [code, subtotal]
+      properties:
+        code:
+          type: string
+        subtotal:
+          type: number
+
+    CouponValidation:
+      type: object
+      required: [valid, discount, message]
+      properties:
+        valid:
+          type: boolean
+        discount:
+          type: number
+        message:
+          type: string
+
+    # ── RIDERS ────────────────────────────────────────────────────────────
+    Rider:
+      type: object
+      required: [id, name, status, totalDeliveries, earnings, salary, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        phone:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [Available, On Delivery, Off Duty]
+        totalDeliveries:
+          type: integer
+        earnings:
+          type: number
+        salary:
+          type: number
+        assignedOrderId:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    RiderInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        salary:
+          type: number
+
+    RiderUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [Available, On Delivery, Off Duty]
+        name:
+          type: string
+        phone:
+          type: string
+        salary:
+          type: number
+
+    RiderAssignInput:
+      type: object
+      required: [orderId]
+      properties:
+        orderId:
+          type: string
+
+    # ── SETTINGS ──────────────────────────────────────────────────────────
+    Settings:
+      type: object
+      required: [id, restaurantName, address, phone, taxEnabled, taxRate, taxName, currency, deliveryFee, deliveryFeeEnabled, pointsPer100Taka, pointsRedemptionRate, maxCashierDiscountPercent, maxCashierDiscountAmount]
+      properties:
+        id:
+          type: integer
+        restaurantName:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+        taxEnabled:
+          type: boolean
+        taxRate:
+          type: number
+        taxName:
+          type: string
+        currency:
+          type: string
+        paperWidth:
+          type: integer
+        deliveryFee:
+          type: number
+        deliveryFeeEnabled:
+          type: boolean
+        pointsPer100Taka:
+          type: integer
+        pointsRedemptionRate:
+          type: number
+        maxCashierDiscountPercent:
+          type: number
+        maxCashierDiscountAmount:
+          type: number
+        syncApiKey:
+          type: string
+
+    SettingsUpdate:
+      type: object
+      properties:
+        restaurantName:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+        taxEnabled:
+          type: boolean
+        taxRate:
+          type: number
+        taxName:
+          type: string
+        currency:
+          type: string
+        paperWidth:
+          type: integer
+        deliveryFee:
+          type: number
+        deliveryFeeEnabled:
+          type: boolean
+        pointsPer100Taka:
+          type: integer
+        pointsRedemptionRate:
+          type: number
+        maxCashierDiscountPercent:
+          type: number
+        maxCashierDiscountAmount:
+          type: number
+        syncApiKey:
+          type: string
+
+    # ── DASHBOARD ─────────────────────────────────────────────────────────
+    DashboardStats:
+      type: object
+      required: [todaySales, todayOrders, pendingOrders, cookingNow, totalDiscountsToday, activeMembers, pendingDeliveries]
+      properties:
+        todaySales:
+          type: number
+        todayOrders:
+          type: integer
+        pendingOrders:
+          type: integer
+        cookingNow:
+          type: integer
+        totalDiscountsToday:
+          type: number
+        activeMembers:
+          type: integer
+        pendingDeliveries:
+          type: integer
+
+    DailySales:
+      type: object
+      required: [date, label, sales, orders]
+      properties:
+        date:
+          type: string
+        label:
+          type: string
+        sales:
+          type: number
+        orders:
+          type: integer
+
+    TopSeller:
+      type: object
+      required: [name, qtySold, revenue]
+      properties:
+        name:
+          type: string
+        qtySold:
+          type: integer
+        revenue:
+          type: number
+
+    # ── REPORTS ───────────────────────────────────────────────────────────
+    ReportData:
+      type: object
+      required: [totalSales, totalOrders, avgOrder, taxCollected, totalDiscounts, dailySales, topSellers]
+      properties:
+        totalSales:
+          type: number
+        totalOrders:
+          type: integer
+        avgOrder:
+          type: number
+        taxCollected:
+          type: number
+        totalDiscounts:
+          type: number
+        dailySales:
+          type: array
+          items:
+            $ref: "#/components/schemas/DailySales"
+        topSellers:
+          type: array
+          items:
+            $ref: "#/components/schemas/TopSeller"

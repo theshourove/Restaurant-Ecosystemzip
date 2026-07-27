@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "PETUK Restaurant"
+version = "1.0.0"
+id = "artifacts/petuk"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20637
+
+[services.development]
+run = "pnpm --filter @workspace/petuk run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/petuk", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/petuk/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20637"
+BASE_PATH = "/"
