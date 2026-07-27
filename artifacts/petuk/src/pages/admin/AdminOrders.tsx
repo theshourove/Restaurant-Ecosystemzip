@@ -126,6 +126,7 @@ export default function AdminOrders() {
           </Table>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
