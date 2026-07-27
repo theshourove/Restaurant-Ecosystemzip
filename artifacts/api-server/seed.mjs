@@ -8,7 +8,15 @@ const require = createRequire(import.meta.url);
 const pg      = require("/home/runner/workspace/node_modules/.pnpm/pg@8.22.0/node_modules/pg");
 const bcrypt  = require("/home/runner/workspace/node_modules/.pnpm/bcryptjs@3.0.3/node_modules/bcryptjs");
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const connectionString = process.env.SUPABASE_DATABASE_URL ?? process.env.DATABASE_URL;
+if (!connectionString) throw new Error("Set SUPABASE_DATABASE_URL or DATABASE_URL");
+const isSupabase = connectionString === process.env.SUPABASE_DATABASE_URL;
+console.log(`Using ${isSupabase ? "Supabase" : "local"} database`);
+
+const pool = new pg.Pool({
+  connectionString,
+  ...(isSupabase ? { ssl: { rejectUnauthorized: false } } : {}),
+});
 const q = (sql, p = []) => pool.query(sql, p);
 
 // ── Admin Users ───────────────────────────────────────────────────────────────
