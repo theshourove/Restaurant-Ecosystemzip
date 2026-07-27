@@ -27,9 +27,9 @@ export default function AdminUsers() {
   const { data: users, isLoading } = useListAdminUsers();
   const { user: currentUser } = useAuth();
   
-  const createReq = useCreateAdminUser({ onSuccess: () => { queryClient.invalidateQueries({ queryKey: getListAdminUsersQueryKey() }); setIsModalOpen(false); }});
-  const updateReq = useUpdateAdminUser({ onSuccess: () => { queryClient.invalidateQueries({ queryKey: getListAdminUsersQueryKey() }); setIsModalOpen(false); }});
-  const deleteReq = useDeleteAdminUser({ onSuccess: () => queryClient.invalidateQueries({ queryKey: getListAdminUsersQueryKey() }) });
+  const createReq = useCreateAdminUser({ mutation: { onSuccess: () => { queryClient.invalidateQueries({ queryKey: getListAdminUsersQueryKey() }); setIsModalOpen(false); }}});
+  const updateReq = useUpdateAdminUser({ mutation: { onSuccess: () => { queryClient.invalidateQueries({ queryKey: getListAdminUsersQueryKey() }); setIsModalOpen(false); }}});
+  const deleteReq = useDeleteAdminUser({ mutation: { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListAdminUsersQueryKey() }) } });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);

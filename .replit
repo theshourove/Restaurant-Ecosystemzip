@@ -5,7 +5,7 @@ router = "application"
 deploymentTarget = "autoscale"
 
 [deployment.postBuild]
-args = ["pnpm", "store", "prune"]
+args = ["npm", "prune", "--production"]
 env = { "CI" = "true" }
 
 [workflows]
@@ -30,7 +30,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PORT=8080 pnpm --filter @workspace/api-server run dev"
+args = "PORT=8080 npm --workspace @workspace/api-server run dev"
 waitForPort = 8080
 
 [workflows.workflow.metadata]
@@ -42,14 +42,14 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PORT=20637 BASE_PATH=/ pnpm --filter @workspace/petuk run dev"
+args = "PORT=20637 BASE_PATH=/ npm --workspace @workspace/petuk run dev"
 waitForPort = 20637
 
 [workflows.workflow.metadata]
 outputType = "webview"
 
 [agent]
-stack = "PNPM_WORKSPACE"
+stack = "NPM_WORKSPACE"
 expertMode = true
 
 [postMerge]

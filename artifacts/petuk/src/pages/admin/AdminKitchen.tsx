@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/shared';
 import { useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Clock } from 'lucide-react';
-import type { OrderStatusUpdateStatus } from '@workspace/api-client-react/src/generated/api.schemas';
+import type { OrderStatusUpdateStatus } from '@workspace/api-client-react';
 
 // Simple beep sound using web audio api
 const playBeep = () => {
@@ -30,7 +30,7 @@ export default function AdminKitchen() {
   
   const { data } = useListOrders(
     { status: 'pending,cooking,ready', limit: 100 }, 
-    { query: { refetchInterval: 8000 } }
+    { query: { queryKey: getListOrdersQueryKey({ status: 'pending,cooking,ready', limit: 100 }), refetchInterval: 8000 } }
   );
 
   const pendingOrders = data?.orders.filter(o => o.status === 'pending') || [];
@@ -58,7 +58,7 @@ export default function AdminKitchen() {
     else if (current === 'cooking') next = 'ready';
     else if (current === 'ready') next = 'served';
     else return;
-    updateStatus.mutate({ id, data: { status: next } });
+    updateStatus.mutate({ id: String(id), data: { status: next } });
   };
 
   const OrderCard = ({ order, statusType }: { order: any, statusType: 'pending'|'cooking'|'ready' }) => {

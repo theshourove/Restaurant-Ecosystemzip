@@ -1,14 +1,14 @@
 import React from 'react';
-import { useGetDashboardStats, useGetSalesChart, useGetTopSellers, useGetRecentOrders } from '@workspace/api-client-react';
+import { useGetDashboardStats, useGetSalesChart, useGetTopSellers, useGetRecentOrders, getGetDashboardStatsQueryKey, getGetSalesChartQueryKey, getGetTopSellersQueryKey, getGetRecentOrdersQueryKey } from '@workspace/api-client-react';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@/components/ui/shared';
 import { TrendingUp, ShoppingBag, Clock, Utensils, Tag, Users, Bike } from 'lucide-react';
 import { Link } from 'wouter';
 
 export default function AdminDashboard() {
-  const { data: stats } = useGetDashboardStats({ query: { refetchInterval: 30000 } });
-  const { data: chart } = useGetSalesChart({ query: { refetchInterval: 30000 } });
-  const { data: topSellers } = useGetTopSellers({ query: { refetchInterval: 30000 } });
-  const { data: recentOrders } = useGetRecentOrders({ query: { refetchInterval: 30000 } });
+  const { data: stats } = useGetDashboardStats({ query: { queryKey: getGetDashboardStatsQueryKey(), refetchInterval: 30000 } });
+  const { data: chart } = useGetSalesChart({ query: { queryKey: getGetSalesChartQueryKey(), refetchInterval: 30000 } });
+  const { data: topSellers } = useGetTopSellers({ query: { queryKey: getGetTopSellersQueryKey(), refetchInterval: 30000 } });
+  const { data: recentOrders } = useGetRecentOrders({ query: { queryKey: getGetRecentOrdersQueryKey(), refetchInterval: 30000 } });
 
   const maxSales = chart ? Math.max(...chart.map(d => d.sales), 1) : 1;
 

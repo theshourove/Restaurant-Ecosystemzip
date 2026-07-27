@@ -17,11 +17,13 @@ export default function AdminSettings() {
   }, [settings, formData]);
 
   const updateMutation = useUpdateSettings({
+  mutation: {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getGetSettingsQueryKey() });
       alert('Settings Saved');
     }
-  });
+  }
+});
 
   if (!formData) return <div>Loading...</div>;
 

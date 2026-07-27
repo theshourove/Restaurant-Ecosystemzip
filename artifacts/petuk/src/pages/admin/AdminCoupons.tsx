@@ -4,7 +4,7 @@ import { Card, CardContent, Table, TableHeader, TableRow, TableHead, TableBody, 
 import { useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, X, Edit } from 'lucide-react';
 import { format } from 'date-fns';
-import type { CouponInputType } from '@workspace/api-client-react/src/generated/api.schemas';
+import type { CouponInputType } from '@workspace/api-client-react';
 
 const Modal = ({ isOpen, onClose, title, children }: any) => {
   if (!isOpen) return null;
@@ -27,9 +27,9 @@ export default function AdminCoupons() {
   const queryClient = useQueryClient();
   const { data: coupons, isLoading } = useListCoupons();
   
-  const createReq = useCreateCoupon({ onSuccess: () => { queryClient.invalidateQueries({ queryKey: getListCouponsQueryKey() }); setIsModalOpen(false); }});
-  const updateReq = useUpdateCoupon({ onSuccess: () => { queryClient.invalidateQueries({ queryKey: getListCouponsQueryKey() }); }});
-  const deleteReq = useDeleteCoupon({ onSuccess: () => queryClient.invalidateQueries({ queryKey: getListCouponsQueryKey() }) });
+  const createReq = useCreateCoupon({ mutation: { onSuccess: () => { queryClient.invalidateQueries({ queryKey: getListCouponsQueryKey() }); setIsModalOpen(false); }}});
+  const updateReq = useUpdateCoupon({ mutation: { onSuccess: () => { queryClient.invalidateQueries({ queryKey: getListCouponsQueryKey() }); }}});
+  const deleteReq = useDeleteCoupon({ mutation: { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListCouponsQueryKey() }) }});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ code: '', type: 'percent' as CouponInputType, value: 10, minOrder: 0, maxUses: 100, expiry: '' });

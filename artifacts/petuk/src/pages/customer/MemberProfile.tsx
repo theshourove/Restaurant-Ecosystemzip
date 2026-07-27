@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLookupMember, useCreateMember } from '@workspace/api-client-react';
+import { useLookupMember, useCreateMember, getLookupMemberQueryKey } from '@workspace/api-client-react';
 import { Crown, Star, Plus, ChevronRight, Phone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,7 +20,7 @@ export default function MemberProfile() {
 
   const { data, isLoading } = useLookupMember(
     { phone: activeSearch },
-    { query: { enabled: !!activeSearch } }
+    { query: { queryKey: getLookupMemberQueryKey({ phone: activeSearch }), enabled: !!activeSearch } }
   );
 
   const createMember = useCreateMember({

@@ -34,7 +34,7 @@ export default function QrOrder() {
     }
     createOrder.mutate({
       data: {
-        items: state.items.map(i => ({ name: i.name, price: i.price, qty: i.qty, category: i.category })),
+        items: state.items.map(i => ({ id: i.id ?? 0, name: i.name, price: i.price, qty: i.qty, category: i.category })),
         orderType: 'dine_in',
         tableNumber: tableNumber,
         customerName: state.customerName,

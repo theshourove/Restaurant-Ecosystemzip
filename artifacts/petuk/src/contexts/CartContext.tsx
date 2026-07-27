@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
-import type { OrderItem, OrderInputOrderType, OrderInputPaymentMethod, Member, Coupon, Settings } from '@workspace/api-client-react/src/generated/api.schemas';
+import type { OrderItem, OrderInputOrderType, OrderInputPaymentMethod, Member, Coupon, Settings } from '@workspace/api-client-react';
 
 interface CartState {
   items: OrderItem[];

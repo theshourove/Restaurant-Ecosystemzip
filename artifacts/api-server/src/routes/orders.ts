@@ -240,10 +240,11 @@ router.patch("/orders/:id/status", requireAdmin, async (req, res) => {
   try {
     const { status } = req.body as { status: string };
     if (!status) { res.status(400).json({ error: "status required" }); return; }
-    const numericId = parseInt(req.params.id, 10);
+    const idParam = String(req.params.id);
+    const numericId = parseInt(idParam, 10);
     const [o] = await db.update(ordersTable)
       .set({ status, updatedAt: new Date() })
-      .where(isNaN(numericId) ? eq(ordersTable.orderId, req.params.id) : eq(ordersTable.id, numericId))
+      .where(isNaN(numericId) ? eq(ordersTable.orderId, idParam) : eq(ordersTable.id, numericId))
       .returning();
     if (!o) { res.status(404).json({ error: "Not found" }); return; }
     res.json(mapOrder(o));

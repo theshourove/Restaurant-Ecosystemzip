@@ -8,7 +8,7 @@ export default function AdminRiders() {
   const queryClient = useQueryClient();
   const { data: riders } = useListRiders();
   const updateRider = useUpdateRider({
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: getListRidersQueryKey() })
+    mutation: { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListRidersQueryKey() }) }
   });
 
   return (

@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   useListMenuItems, useGetSettings, useCreateOrder,
-  useLookupMember, useListRiders, useAssignRider, useValidateCoupon
+  useLookupMember, useListRiders, useAssignRider, useValidateCoupon,
+  getLookupMemberQueryKey
 } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCart } from '@/contexts/CartContext';
@@ -131,7 +132,7 @@ export default function AdminPOS() {
   // — Member lookup —
   const { refetch: doMemberLookup, isFetching: memberLoading } = useLookupMember(
     { phone: memberPhone },
-    { query: { enabled: false } }
+    { query: { queryKey: getLookupMemberQueryKey({ phone: memberPhone }), enabled: false } }
   );
 
   // — Coupon —

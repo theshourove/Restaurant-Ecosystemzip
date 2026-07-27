@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { useGetMe, adminLogout } from '@workspace/api-client-react';
-import type { AdminUser } from '@workspace/api-client-react/src/generated/api.schemas';
+import type { AdminUser } from '@workspace/api-client-react';
 import { useLocation } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -19,6 +19,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const { data: user, isLoading, isError } = useGetMe({
     query: {
+      queryKey: ['/api/auth/me'],
       retry: false,
     }
   });

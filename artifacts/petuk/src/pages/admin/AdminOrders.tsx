@@ -4,7 +4,7 @@ import { Card, CardContent, Badge, Button, Table, TableHeader, TableRow, TableHe
 import { useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Check, X, ChefHat } from 'lucide-react';
-import type { OrderStatusUpdateStatus } from '@workspace/api-client-react/src/generated/api.schemas';
+import type { OrderStatusUpdateStatus } from '@workspace/api-client-react';
 
 export default function AdminOrders() {
   const [filter, setFilter] = useState<string>('all');
@@ -12,7 +12,7 @@ export default function AdminOrders() {
   const { data: ordersData, isLoading } = useListOrders({
     status: filter !== 'all' ? filter : undefined,
     limit: 50
-  }, { query: { refetchInterval: 15000 } });
+  }, { query: { queryKey: getListOrdersQueryKey({ status: filter !== 'all' ? filter : undefined, limit: 50 }), refetchInterval: 15000 } });
 
   const updateStatus = useUpdateOrderStatus({
     mutation: {
@@ -23,7 +23,7 @@ export default function AdminOrders() {
   });
 
   const handleUpdate = (id: number, status: OrderStatusUpdateStatus) => {
-    updateStatus.mutate({ id, data: { status } });
+    updateStatus.mutate({ id: String(id), data: { status } });
   };
 
   const getStatusBadge = (status: string) => {

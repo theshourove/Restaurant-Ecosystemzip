@@ -24,7 +24,7 @@ CardContent.displayName = "CardContent";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   asChild?: boolean;
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'success' | 'warning';
   size?: 'default' | 'sm' | 'lg' | 'icon';
 }
 
@@ -40,6 +40,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ classN
           'bg-secondary text-secondary-foreground hover:bg-[#FF8F00] shadow-petuk': variant === 'secondary',
           'border border-border bg-card hover:bg-muted text-foreground': variant === 'outline',
           'hover:bg-muted text-foreground': variant === 'ghost',
+          'bg-success text-success-foreground hover:bg-[#1b5e20] shadow-petuk': variant === 'success',
+          'bg-warning text-warning-foreground hover:bg-[#FF8F00] shadow-petuk': variant === 'warning',
           'h-[44px] px-4 py-2': size === 'default',
           'h-[44px] rounded-md px-3 text-sm': size === 'sm',
           'h-12 rounded-md px-8 text-lg min-h-[48px]': size === 'lg',
@@ -74,12 +76,13 @@ export const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttribute
 ))
 Label.displayName = "Label"
 
-export const Badge = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' }>(({ className, variant = "default", ...props }, ref) => (
+export const Badge = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' }>(({ className, variant = "default", ...props }, ref) => (
   <div ref={ref} className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider transition-colors border", {
     "border-transparent bg-primary text-primary-foreground": variant === 'default',
     "border-transparent bg-secondary text-secondary-foreground": variant === 'secondary',
     "border-transparent bg-destructive text-destructive-foreground": variant === 'destructive',
     "border-transparent bg-success text-success-foreground": variant === 'success',
+    "border-transparent bg-warning text-warning-foreground": variant === 'warning',
     "text-foreground border-border": variant === 'outline',
   }, className)} {...props} />
 ))

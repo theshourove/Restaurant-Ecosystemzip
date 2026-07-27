@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useListMenuItems, useGetSettings, useCreateOrder, useLookupMember, useValidateCoupon } from '@workspace/api-client-react';
+import { useListMenuItems, useGetSettings, useCreateOrder, useLookupMember, useValidateCoupon, getLookupMemberQueryKey } from '@workspace/api-client-react';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
@@ -42,7 +42,7 @@ export default function CustomerMenu() {
   // — Member lookup —
   const { refetch: doLookupMember, isFetching: lookingUp } = useLookupMember(
     { phone: memberInput },
-    { query: { enabled: false } }
+    { query: { queryKey: getLookupMemberQueryKey({ phone: memberInput }), enabled: false } }
   );
 
   // — Coupon validation —

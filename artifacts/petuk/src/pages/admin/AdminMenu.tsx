@@ -26,9 +26,9 @@ const Modal = ({ isOpen, onClose, title, children }: any) => {
 export default function AdminMenu() {
   const queryClient = useQueryClient();
   const { data: items, isLoading } = useListMenuItems();
-  const createItem = useCreateMenuItem({ onSuccess: () => { queryClient.invalidateQueries({ queryKey: getListMenuItemsQueryKey() }); setIsModalOpen(false); }});
-  const updateItem = useUpdateMenuItem({ onSuccess: () => { queryClient.invalidateQueries({ queryKey: getListMenuItemsQueryKey() }); setIsModalOpen(false); }});
-  const deleteItem = useDeleteMenuItem({ onSuccess: () => queryClient.invalidateQueries({ queryKey: getListMenuItemsQueryKey() }) });
+  const createItem = useCreateMenuItem({ mutation: { onSuccess: () => { queryClient.invalidateQueries({ queryKey: getListMenuItemsQueryKey() }); setIsModalOpen(false); }}});
+  const updateItem = useUpdateMenuItem({ mutation: { onSuccess: () => { queryClient.invalidateQueries({ queryKey: getListMenuItemsQueryKey() }); setIsModalOpen(false); }}});
+  const deleteItem = useDeleteMenuItem({ mutation: { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListMenuItemsQueryKey() }) }});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);

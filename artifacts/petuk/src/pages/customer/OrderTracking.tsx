@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useTrackOrder } from '@workspace/api-client-react';
+import { useTrackOrder, getTrackOrderQueryKey } from '@workspace/api-client-react';
 import { MapPin, Search, CheckCircle2, ChefHat, Package, Bike, XCircle, Clock, Loader2 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { format } from 'date-fns';
@@ -41,7 +41,7 @@ export default function OrderTracking() {
   const isPhone = /^\d{10,}$/.test(query);
   const { data: trackData, isLoading, isError, refetch } = useTrackOrder(
     isPhone ? { phone: query } : { order_id: query },
-    { query: { enabled: !!query, refetchInterval: 15000 } }
+    { query: { queryKey: getTrackOrderQueryKey(isPhone ? { phone: query } : { order_id: query }), enabled: !!query, refetchInterval: 15000 } }
   );
 
   const orders = Array.isArray(trackData) ? trackData : [];
