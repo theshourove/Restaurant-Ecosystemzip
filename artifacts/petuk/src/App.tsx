@@ -12,6 +12,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminPOS from './pages/admin/AdminPOS';
 import AdminKitchen from './pages/admin/AdminKitchen';
 import AdminMenu from './pages/admin/AdminMenu';
+import AdminTables from './pages/admin/AdminTables';
 import AdminMembers from './pages/admin/AdminMembers';
 import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminRiders from './pages/admin/AdminRiders';
@@ -60,6 +61,9 @@ function Router() {
       <Route path="/admin/menu">
         <AdminLayout><ProtectedRoute component={AdminMenu} /></AdminLayout>
       </Route>
+      <Route path="/admin/tables">
+        <AdminLayout><ProtectedRoute component={AdminTables} /></AdminLayout>
+      </Route>
       <Route path="/admin/members">
         <AdminLayout><ProtectedRoute component={AdminMembers} /></AdminLayout>
       </Route>
@@ -81,6 +85,10 @@ function Router() {
 
       {/* Customer App — CustomerMenu has its own header */}
       <Route path="/" component={CustomerMenu} />
+      {/* /order?table=N — QR code scan path */}
+      <Route path="/order">
+        <CustomerLayout><QrOrder /></CustomerLayout>
+      </Route>
       <Route path="/qr-order">
         <CustomerLayout><QrOrder /></CustomerLayout>
       </Route>

@@ -40,12 +40,22 @@ router.post("/auth/login", async (req, res) => {
       station: user.station,
     };
 
-    res.json({
+    // Force session save to DB before responding so the next GET /auth/me
+    // is guaranteed to find the session in the store.
+    const payload = {
       id: user.id,
       username: user.username,
       displayName: user.displayName,
       role: user.role,
       station: user.station,
+    };
+    req.session.save((err) => {
+      if (err) {
+        req.log.error({ err }, "Session save error");
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      }
+      res.json(payload);
     });
   } catch (err) {
     req.log.error({ err }, "Login error");

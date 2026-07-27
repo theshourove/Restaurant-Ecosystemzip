@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Flame, LayoutDashboard, ListOrdered, Monitor, ChefHat, Utensils, Users, Ticket, Bike, BarChart3, Settings, UserCog, LogOut } from 'lucide-react';
+import { Flame, LayoutDashboard, ListOrdered, Monitor, ChefHat, Utensils, Users, Ticket, Bike, BarChart3, Settings, UserCog, LogOut, QrCode } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '../ui/shared';
 
@@ -14,6 +14,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { href: '/admin/pos', label: 'POS', icon: Monitor },
     { href: '/admin/kitchen', label: 'Kitchen Display', icon: ChefHat },
     { href: '/admin/menu', label: 'Menu', icon: Utensils },
+    { href: '/admin/tables', label: 'Table QR Codes', icon: QrCode },
     { href: '/admin/members', label: 'Members', icon: Users },
     { href: '/admin/coupons', label: 'Coupons', icon: Ticket },
     { href: '/admin/riders', label: 'Riders', icon: Bike },
@@ -57,8 +58,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto bg-background">
-        <div className="p-8 max-w-7xl mx-auto">
+      <main className="flex-1 overflow-auto bg-white">
+        <div className="p-6 max-w-7xl mx-auto">
           {children}
         </div>
       </main>

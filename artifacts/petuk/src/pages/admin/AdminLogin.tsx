@@ -14,12 +14,14 @@ export default function AdminLogin() {
 
   const loginMutation = useAdminLogin({
     mutation: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      onSuccess: async () => {
+        // Refetch /api/auth/me and wait – session is now saved, so this
+        // guarantees the ProtectedRoute sees an authenticated user.
+        await queryClient.refetchQueries({ queryKey: ['/api/auth/me'] });
         setLocation('/admin');
       },
       onError: () => {
-        setError('Invalid credentials');
+        setError('Invalid credentials. Please try again.');
       }
     }
   });

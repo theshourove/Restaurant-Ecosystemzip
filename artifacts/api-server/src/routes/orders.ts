@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { ordersTable, membersTable, couponsTable, settingsTable } from "@workspace/db";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, or } from "drizzle-orm";
 import { requireAdmin } from "../lib/auth";
 import { getTier, calcPointsEarned } from "../lib/tiers";
 import { desc } from "drizzle-orm";
@@ -235,13 +235,15 @@ router.post("/orders", async (req, res) => {
 });
 
 // PATCH /api/orders/:id/status (admin)
+// :id is the numeric DB id (what the generated client sends)
 router.patch("/orders/:id/status", requireAdmin, async (req, res) => {
   try {
     const { status } = req.body as { status: string };
     if (!status) { res.status(400).json({ error: "status required" }); return; }
+    const numericId = parseInt(req.params.id, 10);
     const [o] = await db.update(ordersTable)
       .set({ status, updatedAt: new Date() })
-      .where(eq(ordersTable.orderId, req.params.id))
+      .where(isNaN(numericId) ? eq(ordersTable.orderId, req.params.id) : eq(ordersTable.id, numericId))
       .returning();
     if (!o) { res.status(404).json({ error: "Not found" }); return; }
     res.json(mapOrder(o));

@@ -330,23 +330,24 @@ export default function AdminPOS() {
       )}
 
       {/* ── POS Layout ── */}
-      <div className="h-screen bg-gray-100 flex overflow-hidden font-sans">
+      {/* bg-[#FFD600] = PETUK fire yellow. Right panel stays white for contrast. */}
+      <div className="h-screen bg-[#FFD600] flex overflow-hidden font-sans">
 
         {/* ── LEFT: Menu Panel ── */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Topbar */}
           <div className="h-14 bg-[#E53935] flex items-center px-4 gap-3 shrink-0">
             <Flame className="w-6 h-6 text-white" />
-            <span className="font-black text-white uppercase tracking-widest text-lg">POS</span>
+            <span className="font-black text-white uppercase tracking-widest text-lg">PETUK POS</span>
             <div className="flex-1 mx-4 relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 ref={searchRef}
                 type="text"
-                placeholder="Search (F2)..."
+                placeholder="Search item... (F2)"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full h-9 bg-white rounded-lg pl-9 pr-4 font-semibold text-sm outline-none"
+                className="w-full h-10 bg-white rounded-lg pl-9 pr-4 font-semibold text-sm outline-none"
               />
               {search && (
                 <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -354,16 +355,16 @@ export default function AdminPOS() {
                 </button>
               )}
             </div>
-            <button onClick={() => setLocation('/admin')} className="text-white/70 hover:text-white text-xs font-bold flex items-center gap-1">
-              <Home className="w-4 h-4" /> Exit POS
+            <button onClick={() => setLocation('/admin')} className="text-white/70 hover:text-white text-xs font-bold flex items-center gap-1 shrink-0">
+              <Home className="w-4 h-4" /> Exit
             </button>
           </div>
 
-          {/* Category tabs */}
-          <div className="bg-white border-b flex gap-1 px-3 py-2 overflow-x-auto shrink-0 hide-scrollbar">
+          {/* Category tabs — bigger touch targets for Posiflex */}
+          <div className="bg-[#FFD600] border-b border-[#FFAB00] flex gap-1.5 px-3 py-2 overflow-x-auto shrink-0 hide-scrollbar">
             <button
               onClick={() => setCategory('')}
-              className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-black uppercase transition-all ${category === '' ? 'bg-[#E53935] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+              className={`shrink-0 px-5 py-2 rounded-full text-sm font-black uppercase transition-all min-h-[40px] ${category === '' ? 'bg-[#E53935] text-white shadow' : 'bg-white text-[#1A1A1A] hover:bg-[#FFE082]'}`}
             >
               All
             </button>
@@ -371,52 +372,52 @@ export default function AdminPOS() {
               <button
                 key={c}
                 onClick={() => setCategory(c)}
-                className={`shrink-0 flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black uppercase transition-all ${category === c ? 'bg-[#E53935] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                className={`shrink-0 px-5 py-2 rounded-full text-sm font-black uppercase transition-all min-h-[40px] ${category === c ? 'bg-[#E53935] text-white shadow' : 'bg-white text-[#1A1A1A] hover:bg-[#FFE082]'}`}
               >
-                {CATEGORY_EMOJIS[c]} {c}
+                {c}
               </button>
             ))}
           </div>
 
           {/* Shortcut hints */}
-          <div className="bg-yellow-50 border-b border-yellow-100 px-3 py-1 flex gap-4 overflow-x-auto hide-scrollbar">
+          <div className="bg-[#FFAB00]/30 border-b border-[#FFAB00]/40 px-3 py-1 flex gap-4 overflow-x-auto hide-scrollbar shrink-0">
             {[['F2', 'Search'], ['F7', 'Coupon'], ['F8', 'Member'], ['F6', 'Discount'], ['F9', 'Pay']].map(([k, v]) => (
-              <span key={k} className="text-xs text-yellow-700 font-bold whitespace-nowrap">
-                <kbd className="bg-yellow-200 text-yellow-800 px-1.5 py-0.5 rounded text-xs font-black">{k}</kbd> {v}
+              <span key={k} className="text-xs text-[#5D4037] font-bold whitespace-nowrap">
+                <kbd className="bg-white text-[#E53935] px-1.5 py-0.5 rounded text-xs font-black border border-[#FFAB00]">{k}</kbd> {v}
               </span>
             ))}
           </div>
 
-          {/* Menu Grid */}
+          {/* Menu Grid — max 3 cols for Posiflex readability */}
           <div className="flex-1 overflow-y-auto p-3">
             {filtered.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-40 text-gray-300">
+              <div className="flex flex-col items-center justify-center h-40 text-[#5D4037]/50">
                 <Utensils className="w-12 h-12 mb-2" />
-                <p className="font-bold text-sm">No items</p>
+                <p className="font-bold text-sm">No items found</p>
               </div>
             )}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
               {filtered.map(item => {
                 const inCart = state.items.find(i => i.name === item.name);
                 return (
                   <div
                     key={item.id}
                     onClick={() => addItem({ name: item.name, price: item.price, qty: 1, category: item.category })}
-                    className="bg-white rounded-xl p-3 cursor-pointer hover:border-[#E53935] hover:shadow-md border-2 border-transparent transition-all active:scale-95 select-none relative"
+                    className={`bg-white rounded-xl p-3 cursor-pointer border-2 transition-all active:scale-95 select-none relative shadow-sm ${inCart ? 'border-[#E53935] shadow-md' : 'border-transparent hover:border-[#FFAB00] hover:shadow-md'}`}
                   >
                     {inCart && (
-                      <div className="absolute top-2 right-2 bg-[#E53935] text-white text-xs font-black w-5 h-5 rounded-full flex items-center justify-center">
+                      <div className="absolute top-2 right-2 bg-[#E53935] text-white text-sm font-black w-7 h-7 rounded-full flex items-center justify-center shadow">
                         {inCart.qty}
                       </div>
                     )}
-                    <div className="aspect-square bg-gray-50 rounded-lg mb-2 flex items-center justify-center text-3xl overflow-hidden">
+                    <div className="aspect-square bg-[#FFF8E1] rounded-lg mb-2 flex items-center justify-center text-4xl overflow-hidden">
                       {item.imagePath
                         ? <img src={item.imagePath} className="w-full h-full object-cover" alt={item.name} />
                         : <span>{CATEGORY_EMOJIS[item.category] || '🍴'}</span>
                       }
                     </div>
-                    <p className="font-black text-xs uppercase leading-tight line-clamp-2 mb-1">{item.name}</p>
-                    <p className="font-black text-sm text-[#E53935]">৳{item.price}</p>
+                    <p className="font-black text-xs uppercase leading-tight line-clamp-2 mb-1 text-[#1A1A1A]">{item.name}</p>
+                    <p className="font-black text-base text-[#E53935]">৳{item.price}</p>
                   </div>
                 );
               })}
@@ -425,17 +426,17 @@ export default function AdminPOS() {
         </div>
 
         {/* ── RIGHT: Order Panel ── */}
-        <div className="w-[360px] xl:w-[400px] bg-white flex flex-col shrink-0 shadow-xl">
+        <div className="w-[360px] xl:w-[400px] bg-white flex flex-col shrink-0 shadow-2xl border-l-4 border-[#E53935]">
           {/* Order type */}
-          <div className="bg-gray-800 p-3">
-            <div className="grid grid-cols-3 gap-1 bg-gray-700 rounded-xl p-1">
+          <div className="bg-[#1A1A1A] p-3">
+            <div className="grid grid-cols-3 gap-1 bg-black/20 rounded-xl p-1">
               {(['dine_in', 'takeout', 'delivery'] as const).map(type => (
                 <button
                   key={type}
                   onClick={() => updateState({ orderType: type })}
-                  className={`py-2 rounded-lg text-xs font-black uppercase transition-all ${state.orderType === type ? 'bg-[#E53935] text-white shadow' : 'text-gray-400 hover:text-gray-200'}`}
+                  className={`py-2.5 rounded-lg text-xs font-black uppercase transition-all min-h-[44px] ${state.orderType === type ? 'bg-[#E53935] text-white shadow' : 'text-gray-400 hover:text-gray-200'}`}
                 >
-                  {type === 'dine_in' ? '🪑 Dine In' : type === 'takeout' ? '📦 Takeout' : '🛵 Delivery'}
+                  {type === 'dine_in' ? 'Dine In' : type === 'takeout' ? 'Takeout' : 'Delivery'}
                 </button>
               ))}
             </div>
@@ -448,7 +449,7 @@ export default function AdminPOS() {
                   placeholder="Table #"
                   value={state.tableNumber ?? ''}
                   onChange={e => updateState({ tableNumber: e.target.value ? Number(e.target.value) : undefined })}
-                  className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 text-sm font-bold outline-none placeholder-gray-400"
+                  className="w-full bg-white/10 text-white rounded-lg px-3 py-2.5 text-sm font-bold outline-none placeholder-gray-400 border border-white/20 focus:border-[#FFD600] min-h-[44px]"
                 />
               )}
               {state.orderType !== 'dine_in' && (
@@ -457,14 +458,14 @@ export default function AdminPOS() {
                     placeholder="Customer Name"
                     value={state.customerName}
                     onChange={e => updateState({ customerName: e.target.value })}
-                    className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 text-sm font-bold outline-none placeholder-gray-400"
+                    className="w-full bg-white/10 text-white rounded-lg px-3 py-2.5 text-sm font-bold outline-none placeholder-gray-400 border border-white/20 focus:border-[#FFD600] min-h-[44px]"
                   />
                   <input
                     type="tel"
                     placeholder="Phone"
                     value={state.customerPhone}
                     onChange={e => updateState({ customerPhone: e.target.value })}
-                    className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 text-sm font-bold outline-none placeholder-gray-400"
+                    className="w-full bg-white/10 text-white rounded-lg px-3 py-2.5 text-sm font-bold outline-none placeholder-gray-400 border border-white/20 focus:border-[#FFD600] min-h-[44px]"
                   />
                 </>
               )}
@@ -473,7 +474,7 @@ export default function AdminPOS() {
                   placeholder="Delivery Address *"
                   value={state.customerAddress}
                   onChange={e => updateState({ customerAddress: e.target.value })}
-                  className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 text-sm font-bold outline-none placeholder-gray-400"
+                  className="w-full bg-white/10 text-white rounded-lg px-3 py-2.5 text-sm font-bold outline-none placeholder-gray-400 border border-white/20 focus:border-[#FFD600] min-h-[44px]"
                 />
               )}
             </div>
@@ -482,24 +483,24 @@ export default function AdminPOS() {
             <div className="flex gap-1.5 mt-2">
               <button
                 onClick={() => setIsMemberModal(true)}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-black uppercase flex items-center justify-center gap-1 transition-all ${state.memberInfo ? 'bg-yellow-400 text-yellow-900' : 'bg-gray-600 text-gray-300 hover:bg-gray-500'}`}
+                className={`flex-1 py-2 rounded-lg text-xs font-black uppercase flex items-center justify-center gap-1 transition-all min-h-[44px] ${state.memberInfo ? 'bg-[#FFD600] text-[#1A1A1A]' : 'bg-white/10 text-gray-300 hover:bg-white/20'}`}
               >
                 <User className="w-3.5 h-3.5" />
-                {state.memberInfo ? state.memberInfo.name.split(' ')[0] : 'Member (F8)'}
+                {state.memberInfo ? state.memberInfo.name.split(' ')[0] : 'Member'}
               </button>
               <button
                 onClick={() => setIsCouponModal(true)}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-black uppercase flex items-center justify-center gap-1 transition-all ${state.couponCode ? 'bg-green-400 text-green-900' : 'bg-gray-600 text-gray-300 hover:bg-gray-500'}`}
+                className={`flex-1 py-2 rounded-lg text-xs font-black uppercase flex items-center justify-center gap-1 transition-all min-h-[44px] ${state.couponCode ? 'bg-green-400 text-green-900' : 'bg-white/10 text-gray-300 hover:bg-white/20'}`}
               >
                 <Ticket className="w-3.5 h-3.5" />
-                {state.couponCode || 'Coupon (F7)'}
+                {state.couponCode || 'Coupon'}
               </button>
               <button
                 onClick={() => setIsDiscountModal(true)}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-black uppercase flex items-center justify-center gap-1 transition-all ${state.manualDiscount > 0 ? 'bg-orange-400 text-orange-900' : 'bg-gray-600 text-gray-300 hover:bg-gray-500'}`}
+                className={`flex-1 py-2 rounded-lg text-xs font-black uppercase flex items-center justify-center gap-1 transition-all min-h-[44px] ${state.manualDiscount > 0 ? 'bg-orange-400 text-orange-900' : 'bg-white/10 text-gray-300 hover:bg-white/20'}`}
               >
                 <Tag className="w-3.5 h-3.5" />
-                {state.manualDiscount > 0 ? `-৳${totals.manualDiscountAmount.toFixed(0)}` : 'Disc (F6)'}
+                {state.manualDiscount > 0 ? `-৳${totals.manualDiscountAmount.toFixed(0)}` : 'Disc'}
               </button>
             </div>
           </div>
@@ -507,29 +508,29 @@ export default function AdminPOS() {
           {/* Cart items */}
           <div className="flex-1 overflow-y-auto">
             {totalItems === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-gray-300">
+              <div className="flex flex-col items-center justify-center h-32 text-[#5D4037]/40">
                 <ShoppingBag className="w-10 h-10 mb-2" />
                 <p className="font-bold text-sm">Cart is empty</p>
-                <p className="text-xs">Click items to add</p>
+                <p className="text-xs">Tap items on the left to add</p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-50">
+              <div className="divide-y divide-[#FFE082]/50">
                 {state.items.map((item, i) => (
-                  <div key={i} className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50">
+                  <div key={i} className="flex items-center gap-2 px-3 py-2 hover:bg-[#FFF8E1] transition-colors">
                     <div className="flex-1 min-w-0">
-                      <p className="font-black text-xs uppercase truncate">{item.name}</p>
-                      <p className="text-[#E53935] font-bold text-xs">৳{(item.price * item.qty).toFixed(0)}</p>
+                      <p className="font-black text-xs uppercase truncate text-[#1A1A1A]">{item.name}</p>
+                      <p className="text-[#E53935] font-black text-sm">৳{(item.price * item.qty).toFixed(0)}</p>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <button onClick={() => updateItemQty(i, item.qty - 1)} className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center hover:bg-red-100 transition-colors">
-                        <Minus className="w-3 h-3" />
+                      <button onClick={() => updateItemQty(i, item.qty - 1)} className="w-8 h-8 bg-[#FFE082] rounded-full flex items-center justify-center hover:bg-[#FFAB00] transition-colors text-[#1A1A1A]">
+                        <Minus className="w-3.5 h-3.5" />
                       </button>
-                      <span className="font-black text-sm w-5 text-center">{item.qty}</span>
-                      <button onClick={() => updateItemQty(i, item.qty + 1)} className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center hover:bg-green-100 transition-colors">
-                        <Plus className="w-3 h-3" />
+                      <span className="font-black text-base w-6 text-center text-[#1A1A1A]">{item.qty}</span>
+                      <button onClick={() => updateItemQty(i, item.qty + 1)} className="w-8 h-8 bg-[#FFE082] rounded-full flex items-center justify-center hover:bg-[#FFAB00] transition-colors text-[#1A1A1A]">
+                        <Plus className="w-3.5 h-3.5" />
                       </button>
-                      <button onClick={() => removeItem(i)} className="w-6 h-6 text-gray-300 hover:text-red-500 flex items-center justify-center ml-1">
-                        <Trash2 className="w-3.5 h-3.5" />
+                      <button onClick={() => removeItem(i)} className="w-8 h-8 text-gray-300 hover:text-[#E53935] hover:bg-red-50 rounded-full flex items-center justify-center ml-0.5 transition-colors">
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -539,54 +540,54 @@ export default function AdminPOS() {
           </div>
 
           {/* Totals */}
-          <div className="border-t border-gray-100 bg-gray-50 p-3 space-y-1">
-            <div className="flex justify-between text-xs font-semibold text-gray-500">
+          <div className="border-t-2 border-[#FFE082] bg-[#FFF8E1] p-3 space-y-1.5">
+            <div className="flex justify-between text-sm font-semibold text-[#5D4037]">
               <span>Subtotal</span><span>৳{totals.subtotal.toFixed(2)}</span>
             </div>
             {totals.memberDiscount > 0 && (
-              <div className="flex justify-between text-xs font-semibold text-green-600">
+              <div className="flex justify-between text-sm font-semibold text-green-700">
                 <span>Member Disc.</span><span>−৳{totals.memberDiscount.toFixed(2)}</span>
               </div>
             )}
             {totals.couponDiscountAmount > 0 && (
-              <div className="flex justify-between text-xs font-semibold text-green-600">
+              <div className="flex justify-between text-sm font-semibold text-green-700">
                 <span>Coupon ({state.couponCode})</span><span>−৳{totals.couponDiscountAmount.toFixed(2)}</span>
               </div>
             )}
             {totals.manualDiscountAmount > 0 && (
-              <div className="flex justify-between text-xs font-semibold text-orange-600">
+              <div className="flex justify-between text-sm font-semibold text-orange-700">
                 <span>Discount</span><span>−৳{totals.manualDiscountAmount.toFixed(2)}</span>
               </div>
             )}
             {totals.tax > 0 && (
-              <div className="flex justify-between text-xs font-semibold text-gray-500">
+              <div className="flex justify-between text-sm font-semibold text-[#5D4037]">
                 <span>Tax ({settings?.taxRate ?? 0}%)</span><span>৳{totals.tax.toFixed(2)}</span>
               </div>
             )}
             {totals.deliveryFee > 0 && (
-              <div className="flex justify-between text-xs font-semibold text-gray-500">
+              <div className="flex justify-between text-sm font-semibold text-[#5D4037]">
                 <span>Delivery</span><span>৳{totals.deliveryFee.toFixed(2)}</span>
               </div>
             )}
-            <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-              <span className="font-black text-base uppercase">TOTAL</span>
-              <span className="font-black text-2xl text-[#E53935]">৳{totals.total.toFixed(2)}</span>
+            <div className="flex justify-between items-center pt-2 border-t-2 border-[#FFAB00]">
+              <span className="font-black text-lg uppercase tracking-wider text-[#1A1A1A]">TOTAL</span>
+              <span className="font-black text-3xl text-[#E53935]">৳{totals.total.toFixed(2)}</span>
             </div>
           </div>
 
           {/* Action buttons */}
-          <div className="p-3 space-y-2 bg-white border-t">
+          <div className="p-3 space-y-2 bg-white border-t-2 border-[#FFE082]">
             <button
               onClick={() => setIsPayModal(true)}
               disabled={totalItems === 0}
-              className="w-full bg-[#E53935] text-white h-14 rounded-2xl font-black text-xl uppercase tracking-widest hover:bg-[#C62828] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              className="w-full bg-[#E53935] text-white h-16 rounded-2xl font-black text-xl uppercase tracking-widest hover:bg-[#C62828] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg"
             >
-              <DollarSign className="w-6 h-6" /> PAY (F9)
+              <DollarSign className="w-7 h-7" /> PAY NOW (F9)
             </button>
             <button
               onClick={() => { clearCart(); setMemberPhone(''); setCouponInput(''); setManualDiscountInput(''); }}
               disabled={totalItems === 0}
-              className="w-full border-2 border-gray-200 text-gray-500 h-10 rounded-xl font-black text-sm uppercase hover:border-red-300 hover:text-red-500 transition-colors disabled:opacity-40"
+              className="w-full border-2 border-[#FFE082] text-[#5D4037] h-11 rounded-xl font-black text-sm uppercase hover:border-[#E53935] hover:text-[#E53935] transition-colors disabled:opacity-40"
             >
               Clear Cart
             </button>

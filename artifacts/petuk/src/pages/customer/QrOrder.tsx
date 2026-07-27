@@ -5,7 +5,7 @@ import { useCart } from '@/contexts/CartContext';
 import { Plus, Minus, Flame, CheckCircle2 } from 'lucide-react';
 
 export default function QrOrder() {
-  const [searchParams] = new URLSearchParams(window.location.search);
+  const searchParams = new URLSearchParams(window.location.search);
   const tableNumber = searchParams.get('table') ? parseInt(searchParams.get('table')!) : undefined;
 
   const { data: menuItems } = useListMenuItems({ available: true });

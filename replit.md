@@ -35,8 +35,22 @@ A full-stack restaurant business ecosystem for **PETUK** — a Bangladeshi-Chine
 ## Admin Panel
 
 - URL: `/admin/login`
+- Default password for all seeded users: **`password`** (change in production)
 - Seeded users: `admin`, `manager`, `cashier1`, `chef`, `juicebar`, `teacounter`, `kitchen1`
 - Roles: Admin, Manager, Cashier, Chef, Juice Bar, Tea Counter, Kitchen
+
+## Image Uploads
+
+- Admin can upload menu item photos via the Menu page (file upload → `POST /api/menu/upload`)
+- Uploads saved to `artifacts/api-server/uploads/`, served at `/api/uploads/<filename>`
+- 5 MB limit, JPG/PNG/WebP accepted
+
+## QR Table Ordering
+
+- Manage table QR codes at `/admin/tables`
+- Each QR code encodes a URL: `<origin>/order?table=N`
+- Customer scans → `QrOrder` page → auto-fills table number, source=qr, order type=dine_in
+- Table number appears in Kitchen Display and Order Management
 
 ## Architecture decisions
 
@@ -60,6 +74,8 @@ _Populate as you build — explicit user instructions worth remembering across s
 - Run `pnpm --filter @workspace/api-spec run codegen` after any OpenAPI spec change — the React hooks and Zod schemas are generated, not hand-written
 - Run `pnpm --filter @workspace/db run push` after schema changes in `lib/db/src/schema/` to apply them to the dev database
 - The API server reads `PORT` from the environment — never hardcode it
+- Session cookie uses `secure: false` in dev (Replit proxy handles HTTPS); `session.save()` is called before sending the login response to eliminate the race condition where `GET /api/auth/me` arrived before the session was written to PostgreSQL
+- `PATCH /api/orders/:id/status` matches on the numeric DB `id`, not the `orderId` string (e.g. "PK-1001") — the Orval client always sends the numeric id in the URL
 
 ## Pointers
 

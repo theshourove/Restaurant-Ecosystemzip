@@ -6,10 +6,15 @@ import ConnectPgSimple from "connect-pg-simple";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { pool } from "@workspace/db";
+import path from "path";
+import fs from "fs";
 
 const PgSession = ConnectPgSimple(session);
 
 const app: Express = express();
+
+// Trust Replit's reverse proxy (needed for secure cookies in production)
+app.set("trust proxy", 1);
 
 app.use(
   pinoHttp({
@@ -53,13 +58,18 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === "production",
+    secure: false, // Replit proxy handles TLS; keep false so cookies survive dev→prod
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     sameSite: "lax",
   },
 }));
 
 app.use("/api", router);
+
+// Serve uploaded images at /api/uploads/*
+const uploadsDir = path.resolve(process.cwd(), "uploads");
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+app.use("/api/uploads", express.static(uploadsDir));
 
 export default app;

@@ -3,8 +3,38 @@ import { db } from "@workspace/db";
 import { menuItemsTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { requireAdmin } from "../lib/auth";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+
+// Ensure uploads directory exists (relative to where the server runs)
+const UPLOADS_DIR = path.resolve(process.cwd(), "uploads");
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase() || ".jpg";
+    cb(null, `menu_${Date.now()}${ext}`);
+  },
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) cb(null, true);
+    else cb(new Error("Only image files allowed"));
+  },
+});
 
 const router = Router();
+
+// POST /api/menu/upload (admin) — multipart image upload
+router.post("/menu/upload", requireAdmin, upload.single("image"), (req, res) => {
+  if (!req.file) { res.status(400).json({ error: "No image uploaded" }); return; }
+  const url = `/api/uploads/${req.file.filename}`;
+  res.json({ url });
+});
 
 // GET /api/menu
 router.get("/menu", async (req, res) => {
