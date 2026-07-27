@@ -9,8 +9,29 @@ A full-stack restaurant business ecosystem for **PETUK** — a Bangladeshi-Chine
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` (auto-provided by Replit), `SESSION_SECRET` (set)
+- `pnpm --filter @workspace/db run push` — push DB schema changes (uses `SUPABASE_DATABASE_URL` if set)
+- `node artifacts/api-server/seed.mjs` — seed all tables (admin users, menu, settings)
+- Required env: `SUPABASE_DATABASE_URL` (Replit Secret — see below), `SESSION_SECRET` (set)
+
+## Database Setup (Supabase)
+
+The app uses **Supabase** as the external database so it is fully portable across Replit accounts.
+
+### Moving to a new Replit account
+1. Import this repo from GitHub: `https://github.com/theshourove/Restaurant-Ecosystemzip`
+2. Run `pnpm install`
+3. Add a Replit Secret: `SUPABASE_DATABASE_URL` = your Supabase connection string
+   - Format: `postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres`
+   - URL-encode any `@` in your password as `%40`
+4. Run `pnpm --filter @workspace/db run push` to create tables
+5. Run `node artifacts/api-server/seed.mjs` to seed data
+6. Start both workflows
+
+### Switching to a different Supabase project
+Just update the `SUPABASE_DATABASE_URL` secret in Replit → Secrets, then restart the API Server workflow.
+
+### Priority order
+`SUPABASE_DATABASE_URL` (external Supabase) → `DATABASE_URL` (Replit built-in fallback)
 
 ## Stack
 
