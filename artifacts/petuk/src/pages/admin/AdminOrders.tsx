@@ -82,6 +82,7 @@ export default function AdminOrders() {
         ))}
       </div>
 
+      <div className="overflow-x-auto rounded-xl">
       <Card>
         <CardContent className="p-0">
           <Table>

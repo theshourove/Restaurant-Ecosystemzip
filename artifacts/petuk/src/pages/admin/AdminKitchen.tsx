@@ -113,28 +113,28 @@ export default function AdminKitchen() {
         <Badge variant="outline" className="text-sm px-4 py-2 border-primary/50 text-primary">Live Sync (8s)</Badge>
       </div>
 
-      <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto">
-        <div className="w-[400px] shrink-0 flex flex-col bg-muted/30 rounded-xl p-4 border border-border">
-          <h2 className="text-xl font-display font-bold uppercase text-destructive mb-4 tracking-wider">Pending ({pendingOrders.length})</h2>
-          <div className="flex-1 overflow-y-auto min-h-0 pr-2 pb-4 space-y-4">
+      <div className="flex-1 min-h-0 flex gap-3 overflow-x-auto">
+        <div className="min-w-[260px] flex-1 max-w-[420px] shrink-0 flex flex-col bg-muted/30 rounded-xl p-3 border border-border">
+          <h2 className="text-lg font-display font-bold uppercase text-destructive mb-3 tracking-wider">Pending ({pendingOrders.length})</h2>
+          <div className="flex-1 overflow-y-auto min-h-0 pb-4 space-y-3">
             {pendingOrders.map(o => <OrderCard key={o.id} order={o} statusType="pending" />)}
-            {pendingOrders.length === 0 && <div className="py-12 text-center font-bold text-muted-foreground uppercase text-xl opacity-50">No Pending Orders</div>}
+            {pendingOrders.length === 0 && <div className="py-12 text-center font-bold text-muted-foreground uppercase text-lg opacity-50">No Pending Orders</div>}
           </div>
         </div>
 
-        <div className="w-[400px] shrink-0 flex flex-col bg-muted/30 rounded-xl p-4 border border-border">
-          <h2 className="text-xl font-display font-bold uppercase text-warning mb-4 tracking-wider">Cooking ({cookingOrders.length})</h2>
-          <div className="flex-1 overflow-y-auto min-h-0 pr-2 pb-4 space-y-4">
+        <div className="min-w-[260px] flex-1 max-w-[420px] shrink-0 flex flex-col bg-muted/30 rounded-xl p-3 border border-border">
+          <h2 className="text-lg font-display font-bold uppercase text-warning mb-3 tracking-wider">Cooking ({cookingOrders.length})</h2>
+          <div className="flex-1 overflow-y-auto min-h-0 pb-4 space-y-3">
             {cookingOrders.map(o => <OrderCard key={o.id} order={o} statusType="cooking" />)}
-            {cookingOrders.length === 0 && <div className="py-12 text-center font-bold text-muted-foreground uppercase text-xl opacity-50">Empty Station</div>}
+            {cookingOrders.length === 0 && <div className="py-12 text-center font-bold text-muted-foreground uppercase text-lg opacity-50">Empty Station</div>}
           </div>
         </div>
 
-        <div className="w-[400px] shrink-0 flex flex-col bg-muted/30 rounded-xl p-4 border border-border">
-          <h2 className="text-xl font-display font-bold uppercase text-success mb-4 tracking-wider">Ready ({readyOrders.length})</h2>
-          <div className="flex-1 overflow-y-auto min-h-0 pr-2 pb-4 space-y-4">
+        <div className="min-w-[260px] flex-1 max-w-[420px] shrink-0 flex flex-col bg-muted/30 rounded-xl p-3 border border-border">
+          <h2 className="text-lg font-display font-bold uppercase text-success mb-3 tracking-wider">Ready ({readyOrders.length})</h2>
+          <div className="flex-1 overflow-y-auto min-h-0 pb-4 space-y-3">
             {readyOrders.map(o => <OrderCard key={o.id} order={o} statusType="ready" />)}
-            {readyOrders.length === 0 && <div className="py-12 text-center font-bold text-muted-foreground uppercase text-xl opacity-50">No Ready Orders</div>}
+            {readyOrders.length === 0 && <div className="py-12 text-center font-bold text-muted-foreground uppercase text-lg opacity-50">No Ready Orders</div>}
           </div>
         </div>
       </div>

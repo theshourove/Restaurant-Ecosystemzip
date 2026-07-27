@@ -305,10 +305,10 @@ export default function CustomerMenu() {
 
       {/* Mobile: Floating Cart Button */}
       {totalItems > 0 && !cartOpen && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 p-4 z-40">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 px-4 pt-4 pb-safe z-40">
           <button
             onClick={() => { setCartOpen(true); setStep('cart'); }}
-            className="w-full bg-[#E53935] text-white rounded-2xl h-16 flex items-center justify-between px-6 shadow-2xl font-bold text-lg"
+            className="w-full bg-[#E53935] text-white rounded-2xl h-16 flex items-center justify-between px-6 shadow-2xl font-bold text-lg touch-manipulation active:bg-[#C62828] transition-colors"
           >
             <span className="bg-white/20 text-white text-sm font-black px-3 py-1 rounded-full">{totalItems}</span>
             <span>View Cart</span>
@@ -388,25 +388,25 @@ function MenuItemCard({ item, state, addItem, updateItemQty }: any) {
             <div className="flex items-center gap-2 bg-[#E53935]/10 rounded-full px-1 py-1">
               <button
                 onClick={() => updateItemQty(idx, inCart.qty - 1)}
-                className="w-8 h-8 bg-[#E53935] text-white rounded-full flex items-center justify-center font-bold hover:bg-[#C62828] transition-colors"
+                className="w-11 h-11 bg-[#E53935] text-white rounded-full flex items-center justify-center font-bold active:bg-[#C62828] transition-colors touch-manipulation"
               >
-                <Minus className="w-3.5 h-3.5" />
+                <Minus className="w-4 h-4" />
               </button>
-              <span className="font-black text-[#E53935] w-5 text-center">{inCart.qty}</span>
+              <span className="font-black text-[#E53935] w-6 text-center text-base">{inCart.qty}</span>
               <button
                 onClick={() => updateItemQty(idx, inCart.qty + 1)}
-                className="w-8 h-8 bg-[#E53935] text-white rounded-full flex items-center justify-center font-bold hover:bg-[#C62828] transition-colors"
+                className="w-11 h-11 bg-[#E53935] text-white rounded-full flex items-center justify-center font-bold active:bg-[#C62828] transition-colors touch-manipulation"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-4 h-4" />
               </button>
             </div>
           ) : (
             <button
               onClick={() => item.isAvailable && addItem({ name: item.name, price: item.price, qty: 1, category: item.category })}
               disabled={!item.isAvailable}
-              className="w-9 h-9 bg-[#E53935] text-white rounded-full flex items-center justify-center font-bold hover:bg-[#C62828] transition-colors disabled:opacity-40"
+              className="w-11 h-11 bg-[#E53935] text-white rounded-full flex items-center justify-center font-bold active:bg-[#C62828] transition-colors disabled:opacity-40 touch-manipulation"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5" />
             </button>
           )}
         </div>
@@ -470,13 +470,13 @@ function CartPanel({
               <p className="font-black text-sm uppercase truncate">{item.name}</p>
               <p className="text-[#E53935] font-bold text-sm">৳{(item.price * item.qty).toFixed(0)}</p>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <button onClick={() => updateItemQty(i, item.qty - 1)} className="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center hover:bg-red-50 transition-colors">
-                <Minus className="w-3 h-3" />
+            <div className="flex items-center gap-1 shrink-0">
+              <button onClick={() => updateItemQty(i, item.qty - 1)} className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center active:bg-red-100 transition-colors touch-manipulation">
+                <Minus className="w-3.5 h-3.5" />
               </button>
-              <span className="font-black text-sm w-5 text-center">{item.qty}</span>
-              <button onClick={() => updateItemQty(i, item.qty + 1)} className="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center hover:bg-green-50 transition-colors">
-                <Plus className="w-3 h-3" />
+              <span className="font-black text-sm w-6 text-center">{item.qty}</span>
+              <button onClick={() => updateItemQty(i, item.qty + 1)} className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center active:bg-green-100 transition-colors touch-manipulation">
+                <Plus className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>

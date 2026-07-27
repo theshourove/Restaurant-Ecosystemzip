@@ -145,6 +145,23 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
+  /* iOS safe-area helpers */
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  .pb-safe-4 {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Prevent double-tap zoom on all interactive elements — critical for mobile UX */
+button, a, [role="button"], input, select, textarea {
+  touch-action: manipulation;
+}
+
+/* Smooth momentum scrolling on iOS */
+.overflow-y-auto, .overflow-x-auto, .overflow-auto {
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Receipt printing handled by AdminPOS inline style tag */

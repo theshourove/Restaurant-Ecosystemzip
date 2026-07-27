@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { db } from "@workspace/db";
 import { adminUsersTable } from "@workspace/db";
 import { eq, ne } from "drizzle-orm";
-import { requireAdmin, requireAdminRole } from "../lib/auth";
+import { requireAdminRole } from "../lib/auth";
 
 const router = Router();
 
